@@ -1,0 +1,1535 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>小程微的回忆拼图</title>
+  <style>
+    :root {
+      --bg: #fff8fb;
+      --ink: #35242b;
+      --muted: #7a6670;
+      --line: #ead5dd;
+      --pink: #f06f9a;
+      --rose: #ff9db9;
+      --mint: #78cdbb;
+      --lemon: #ffd66b;
+      --sky: #7ab8f5;
+      --paper: rgba(255, 255, 255, 0.88);
+      --shadow: 0 18px 50px rgba(165, 77, 111, 0.16);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255, 214, 107, 0.25), transparent 28%),
+        radial-gradient(circle at 88% 10%, rgba(122, 184, 245, 0.22), transparent 26%),
+        linear-gradient(145deg, #fff8fb 0%, #f7fbff 55%, #fff7df 100%);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.48;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 30px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid rgba(240, 111, 154, 0.26);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 8px 22px rgba(240, 111, 154, 0.14);
+      color: var(--pink);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 34px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .brand p,
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .account-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .account-switch {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid rgba(240, 111, 154, 0.22);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 8px 22px rgba(240, 111, 154, 0.1);
+    }
+
+    .account-switch button {
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .account-switch button.active {
+      background: var(--pink);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(240, 111, 154, 0.22);
+    }
+
+    .wallet {
+      min-width: 160px;
+      padding: 10px 13px;
+      border: 1px solid rgba(240, 111, 154, 0.25);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+      text-align: right;
+    }
+
+    .wallet span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .wallet strong {
+      color: var(--pink);
+      font-size: 23px;
+      line-height: 1.2;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid rgba(234, 213, 221, 0.82);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .game-panel {
+      padding: clamp(14px, 3vw, 24px);
+    }
+
+    .intro {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .intro h2,
+    .side h2 {
+      margin-bottom: 6px;
+      font-size: 21px;
+      line-height: 1.2;
+    }
+
+    .upload {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 15px;
+      border: 1px solid rgba(240, 111, 154, 0.3);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--pink);
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 8px 22px rgba(240, 111, 154, 0.12);
+    }
+
+    .upload input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mode {
+      min-height: 74px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .mode:hover,
+    .mode.active {
+      border-color: rgba(240, 111, 154, 0.55);
+      box-shadow: 0 10px 25px rgba(240, 111, 154, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .mode strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .mode span {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      min-height: 61px;
+      padding: 10px;
+      border: 1px solid rgba(234, 213, 221, 0.72);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 19px;
+    }
+
+    .board-shell {
+      display: grid;
+      place-items: center;
+      padding: clamp(8px, 2vw, 16px);
+      border: 1px solid rgba(240, 111, 154, 0.18);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 239, 246, 0.84)),
+        repeating-linear-gradient(45deg, rgba(240, 111, 154, 0.05) 0 8px, transparent 8px 16px);
+    }
+
+    .board {
+      display: grid;
+      width: min(72vh, 100%);
+      max-width: 660px;
+      aspect-ratio: 1 / 1;
+      gap: var(--gap, 3px);
+      padding: var(--gap, 3px);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(53, 36, 43, 0.08), 0 18px 46px rgba(53, 36, 43, 0.16);
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .tile {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 5px;
+      background-color: #ffdfea;
+      background-repeat: no-repeat;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+      transition: transform 120ms ease, filter 120ms ease;
+      overflow: hidden;
+    }
+
+    .tile:hover {
+      filter: brightness(1.04);
+    }
+
+    .tile::after {
+      content: attr(data-num);
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.72);
+      color: rgba(53, 36, 43, 0.78);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 18px;
+    }
+
+    .empty {
+      background:
+        linear-gradient(135deg, rgba(255, 157, 185, 0.26), rgba(255, 214, 107, 0.25));
+      box-shadow: inset 0 0 0 1px rgba(240, 111, 154, 0.18);
+    }
+
+    .empty::after {
+      content: "";
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .primary,
+    .ghost,
+    .danger {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    .primary {
+      background: var(--pink);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(240, 111, 154, 0.28);
+    }
+
+    .ghost {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .danger {
+      border: 1px solid rgba(205, 69, 93, 0.26);
+      background: #fff5f6;
+      color: #b53d58;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section {
+      padding: 16px;
+    }
+
+    .shop,
+    .coupons,
+    .verify-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .shop-item,
+    .record,
+    .coupon {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      border: 1px solid rgba(234, 213, 221, 0.8);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .shop-item h3,
+    .record strong,
+    .coupon strong {
+      font-size: 15px;
+      line-height: 1.25;
+    }
+
+    .shop-item p,
+    .record span,
+    .coupon span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .coupon-code {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: #fff7df;
+      color: #7c5620;
+      font-size: 12px;
+      font-weight: 900;
+      word-break: break-all;
+    }
+
+    .status {
+      min-width: 60px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #e8f8f4;
+      color: #2c7468;
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .status.used {
+      background: #f3eef1;
+      color: var(--muted);
+    }
+
+    .buy,
+    .mini-btn {
+      min-width: 74px;
+      min-height: 34px;
+      border-radius: 8px;
+      background: #fff1c7;
+      color: #7c5620;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mini-btn {
+      border: 1px solid rgba(240, 111, 154, 0.25);
+      background: #fff;
+      color: var(--pink);
+    }
+
+    .verify-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      margin-bottom: 11px;
+    }
+
+    .verify-form input {
+      min-height: 40px;
+      min-width: 0;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .verify-form input:focus {
+      border-color: rgba(240, 111, 154, 0.64);
+      box-shadow: 0 0 0 3px rgba(240, 111, 154, 0.12);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .records {
+      display: grid;
+      max-height: 340px;
+      overflow: auto;
+      gap: 9px;
+      padding-right: 3px;
+    }
+
+    .empty-state {
+      padding: 18px;
+      border: 1px dashed rgba(240, 111, 154, 0.32);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.62);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .toast,
+    .modal {
+      position: fixed;
+      z-index: 10;
+    }
+
+    .toast {
+      right: 18px;
+      bottom: 18px;
+      max-width: min(380px, calc(100vw - 36px));
+      padding: 13px 15px;
+      border: 1px solid rgba(240, 111, 154, 0.24);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      color: var(--ink);
+      font-weight: 800;
+      transform: translateY(130%);
+      transition: transform 180ms ease;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+    }
+
+    .modal {
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(53, 36, 43, 0.28);
+    }
+
+    .modal.show {
+      display: grid;
+    }
+
+    .dialog {
+      width: min(420px, 100%);
+      padding: 22px;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 24px 80px rgba(53, 36, 43, 0.28);
+      text-align: center;
+    }
+
+    .dialog h2 {
+      margin-bottom: 8px;
+      font-size: 27px;
+    }
+
+    .dialog p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .dialog .primary {
+      margin-top: 16px;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .board {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        width: min(100% - 18px, 1180px);
+        padding-top: 10px;
+      }
+
+      .topbar,
+      .intro {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .account-tools {
+        justify-content: stretch;
+      }
+
+      .account-switch {
+        width: 100%;
+      }
+
+      .wallet {
+        text-align: left;
+      }
+
+      .controls,
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .verify-form {
+        grid-template-columns: 1fr;
+      }
+
+      .primary,
+      .ghost,
+      .danger {
+        width: 100%;
+      }
+
+      .tile::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">微</div>
+        <div>
+          <h1>小程微的回忆拼图</h1>
+          <p>上传一张喜欢的照片，拼好以后领取谷鸡鸡的mua。</p>
+        </div>
+      </div>
+      <div class="account-tools">
+        <div class="account-switch" aria-label="账号切换">
+          <button id="playerAccountBtn" class="active" type="button">小程微</button>
+          <button id="adminAccountBtn" type="button">谷鸡鸡</button>
+        </div>
+        <div class="wallet" aria-live="polite">
+          <span>当前余额</span>
+          <strong><b id="balance">0</b> 个mua</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="layout" id="playerView">
+      <div class="panel game-panel">
+        <div class="intro">
+          <div>
+            <h2>今天想拼哪张回忆？</h2>
+            <p class="subtitle">小程微可以自己上传图片，选择难度后开始挑战。</p>
+          </div>
+          <label class="upload">
+            上传图片
+            <input id="imageInput" type="file" accept="image/*">
+          </label>
+        </div>
+
+        <div class="controls" aria-label="难度选择">
+          <button class="mode active" data-size="4">
+            <strong>4 x 4</strong>
+            <span>完成奖励 2 个谷鸡鸡的mua</span>
+          </button>
+          <button class="mode" data-size="8">
+            <strong>8 x 8</strong>
+            <span>完成奖励 4 个谷鸡鸡的mua</span>
+          </button>
+          <button class="mode" data-size="10">
+            <strong>10 x 10</strong>
+            <span>完成奖励 10 个谷鸡鸡的mua</span>
+          </button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <span>当前难度</span>
+            <strong id="sizeStat">4 x 4</strong>
+          </div>
+          <div class="stat">
+            <span>步数</span>
+            <strong id="movesStat">0</strong>
+          </div>
+          <div class="stat">
+            <span>用时</span>
+            <strong id="timeStat">00:00</strong>
+          </div>
+        </div>
+
+        <div class="board-shell">
+          <div class="board" id="board" aria-label="拼图棋盘"></div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="startBtn">开始 / 重开</button>
+          <button class="ghost" id="previewBtn">查看原图</button>
+          <button class="ghost" id="recordsJumpBtn">拼图记录</button>
+          <button class="danger" id="resetBtn">清空数据</button>
+        </div>
+      </div>
+
+      <aside class="side">
+        <section class="panel section">
+          <h2>小商店</h2>
+          <p class="subtitle">用谷鸡鸡的mua兑换甜甜奖励。</p>
+          <div class="shop" id="shop"></div>
+        </section>
+
+        <section class="panel section">
+          <h2>我的券包</h2>
+          <p class="subtitle">兑换后把券码发给谷鸡鸡，就可以让他核销。</p>
+          <div class="coupons" id="coupons"></div>
+        </section>
+
+        <section class="panel section" id="recordsSection">
+          <h2>拼图记录</h2>
+          <p class="subtitle">每次完成都会自动记在这里。</p>
+          <div class="records" id="records"></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="layout hidden" id="adminView">
+      <div class="panel game-panel">
+        <div class="intro">
+          <div>
+            <h2>谷鸡鸡核销台</h2>
+            <p class="subtitle">小程微使用券时，把她发来的券码输入这里核销。</p>
+          </div>
+        </div>
+
+        <div class="verify-form">
+          <input id="verifyInput" type="text" placeholder="输入券码，比如 GJJ-..." autocomplete="off">
+          <button class="primary" id="verifyBtn" type="button">核销</button>
+        </div>
+
+        <div class="empty-state">
+          用 server.js 的网页地址打开时，两边会自动同步；直接打开 HTML 文件时，券码仍然可以作为微信核销凭证。
+        </div>
+      </div>
+
+      <aside class="side">
+        <section class="panel section">
+          <h2>待核销券</h2>
+          <p class="subtitle">同一台设备兑换的券会显示在这里。</p>
+          <div class="coupons" id="pendingCoupons"></div>
+        </section>
+
+        <section class="panel section">
+          <h2>核销记录</h2>
+          <p class="subtitle">你核销过的券会自动保存。</p>
+          <div class="verify-list" id="verifiedList"></div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="dialog">
+      <h2 id="modalTitle">完成啦</h2>
+      <p id="modalText"></p>
+      <button class="primary" id="modalClose">收下奖励</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "chengwei-memory-puzzle-v1";
+    const ADMIN_PASSWORD = "80238023";
+    const SYNC_INTERVAL_MS = 6000;
+    const rewards = { 4: 2, 8: 4, 10: 10 };
+    const shopItems = [
+      { slug: "QQ", name: "亲亲券", cost: 2 },
+      { slug: "NC", name: "奶茶券", cost: 10 },
+      { slug: "BBW", name: "饱饱碗券", cost: 15 },
+      { slug: "QK", name: "请客券（40r以内）", cost: 18 },
+      { slug: "GS", name: "挂饰券", cost: 22 },
+      { slug: "BX", name: "报销券（70r以内）", cost: 30 }
+    ];
+
+    const fallbackImage = makeFallbackImage();
+    const defaultState = {
+      balance: 0,
+      selectedSize: 4,
+      imageData: fallbackImage,
+      imageName: "默认回忆封面",
+      activeAccount: "player",
+      records: [],
+      redemptions: [],
+      coupons: [],
+      verifiedCodes: []
+    };
+
+    let state = loadState();
+    let tiles = [];
+    let emptyIndex = 0;
+    let moves = 0;
+    let startedAt = null;
+    let timer = null;
+    let completed = false;
+    let onlineSync = false;
+    let syncTimer = null;
+    let adminUnlocked = sessionStorage.getItem("chengwei-admin-unlocked") === "yes";
+    let adminPassword = sessionStorage.getItem("chengwei-admin-password") || "";
+
+    const board = document.getElementById("board");
+    const balanceEl = document.getElementById("balance");
+    const sizeStat = document.getElementById("sizeStat");
+    const movesStat = document.getElementById("movesStat");
+    const timeStat = document.getElementById("timeStat");
+    const imageInput = document.getElementById("imageInput");
+    const startBtn = document.getElementById("startBtn");
+    const previewBtn = document.getElementById("previewBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const recordsJumpBtn = document.getElementById("recordsJumpBtn");
+    const playerAccountBtn = document.getElementById("playerAccountBtn");
+    const adminAccountBtn = document.getElementById("adminAccountBtn");
+    const playerView = document.getElementById("playerView");
+    const adminView = document.getElementById("adminView");
+    const shop = document.getElementById("shop");
+    const coupons = document.getElementById("coupons");
+    const pendingCoupons = document.getElementById("pendingCoupons");
+    const verifiedList = document.getElementById("verifiedList");
+    const verifyInput = document.getElementById("verifyInput");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const records = document.getElementById("records");
+    const toast = document.getElementById("toast");
+    const modal = document.getElementById("modal");
+    const modalText = document.getElementById("modalText");
+    const modalClose = document.getElementById("modalClose");
+
+    init();
+
+    function init() {
+      renderModes();
+      renderAccount();
+      renderAllLists();
+      startPuzzle();
+      bindEvents();
+      syncFromServer();
+      startSyncLoop();
+    }
+
+    function bindEvents() {
+      document.querySelectorAll(".mode").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.selectedSize = Number(button.dataset.size);
+          saveState();
+          renderModes();
+          startPuzzle();
+        });
+      });
+
+      imageInput.addEventListener("change", async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        try {
+          state.imageData = await resizeImage(file, 1000);
+          state.imageName = file.name;
+          saveState();
+          startPuzzle();
+          showToast("图片已保存，下次打开还在。");
+        } catch (error) {
+          showToast("这张图片暂时没读成功，换一张试试。");
+        } finally {
+          imageInput.value = "";
+        }
+      });
+
+      startBtn.addEventListener("click", startPuzzle);
+      previewBtn.addEventListener("click", showPreview);
+      recordsJumpBtn.addEventListener("click", () => {
+        document.getElementById("recordsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      resetBtn.addEventListener("click", resetData);
+      modalClose.addEventListener("click", () => modal.classList.remove("show"));
+      playerAccountBtn.addEventListener("click", () => switchAccount("player"));
+      adminAccountBtn.addEventListener("click", () => switchAccount("admin"));
+      verifyBtn.addEventListener("click", () => verifyCoupon());
+      verifyInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") verifyCoupon();
+      });
+    }
+
+    function startPuzzle() {
+      stopTimer();
+      moves = 0;
+      completed = false;
+      startedAt = Date.now();
+      const size = state.selectedSize;
+      const count = size * size;
+      tiles = Array.from({ length: count }, (_, index) => index);
+      emptyIndex = count - 1;
+      shuffleByMoves(size, count * 24);
+      if (isSolved()) shuffleByMoves(size, count * 2 + 1);
+      startTimer();
+      updateStats();
+      renderBoard();
+    }
+
+    function shuffleByMoves(size, steps) {
+      let lastEmpty = -1;
+      for (let i = 0; i < steps; i += 1) {
+        const options = neighbors(emptyIndex, size).filter((index) => index !== lastEmpty);
+        const pick = options[Math.floor(Math.random() * options.length)];
+        lastEmpty = emptyIndex;
+        swap(pick, emptyIndex);
+        emptyIndex = pick;
+      }
+    }
+
+    function renderBoard() {
+      const size = state.selectedSize;
+      board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      board.style.setProperty("--gap", size >= 10 ? "2px" : "3px");
+      board.innerHTML = "";
+
+      tiles.forEach((tileValue, index) => {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = tileValue === size * size - 1 ? "tile empty" : "tile";
+        tile.setAttribute("aria-label", tileValue === size * size - 1 ? "空白格" : `第 ${tileValue + 1} 块`);
+
+        if (tileValue !== size * size - 1) {
+          const x = tileValue % size;
+          const y = Math.floor(tileValue / size);
+          tile.dataset.num = tileValue + 1;
+          tile.style.backgroundImage = `url("${state.imageData}")`;
+          tile.style.backgroundSize = `${size * 100}% ${size * 100}%`;
+          tile.style.backgroundPosition = `${(x / (size - 1)) * 100}% ${(y / (size - 1)) * 100}%`;
+        }
+
+        tile.addEventListener("click", () => moveTile(index));
+        board.appendChild(tile);
+      });
+    }
+
+    function moveTile(index) {
+      if (completed || !neighbors(emptyIndex, state.selectedSize).includes(index)) return;
+      swap(index, emptyIndex);
+      emptyIndex = index;
+      moves += 1;
+      updateStats();
+      renderBoard();
+
+      if (isSolved()) finishPuzzle();
+    }
+
+    function finishPuzzle() {
+      completed = true;
+      stopTimer();
+      const size = state.selectedSize;
+      const reward = rewards[size];
+      const seconds = elapsedSeconds();
+      state.balance += reward;
+      state.records.unshift({
+        size,
+        moves,
+        seconds,
+        reward,
+        imageName: state.imageName,
+        completedAt: new Date().toISOString()
+      });
+      state.records = state.records.slice(0, 80);
+      saveState();
+      renderAllLists();
+      modalText.textContent = `小程微完成了 ${size} x ${size} 拼图，获得 ${reward} 个谷鸡鸡的mua。现在可以去小商店兑换奖励啦。`;
+      modal.classList.add("show");
+    }
+
+    function renderModes() {
+      document.querySelectorAll(".mode").forEach((button) => {
+        const active = Number(button.dataset.size) === state.selectedSize;
+        button.classList.toggle("active", active);
+      });
+      sizeStat.textContent = `${state.selectedSize} x ${state.selectedSize}`;
+    }
+
+    async function switchAccount(account) {
+      if (account === "admin" && !adminUnlocked) {
+        const password = window.prompt("请输入谷鸡鸡账号密码：");
+        const serverAccepted = await loginAdmin(password);
+        if (!serverAccepted && password !== ADMIN_PASSWORD) {
+          showToast("密码不对，不能进入谷鸡鸡核销台。");
+          return;
+        }
+        adminUnlocked = true;
+        adminPassword = password;
+        sessionStorage.setItem("chengwei-admin-unlocked", "yes");
+        sessionStorage.setItem("chengwei-admin-password", password);
+      }
+      state.activeAccount = account;
+      saveState();
+      renderAccount();
+    }
+
+    function renderAccount() {
+      const isAdmin = state.activeAccount === "admin";
+      playerAccountBtn.classList.toggle("active", !isAdmin);
+      adminAccountBtn.classList.toggle("active", isAdmin);
+      playerView.classList.toggle("hidden", isAdmin);
+      adminView.classList.toggle("hidden", !isAdmin);
+      updateWallet();
+      renderCoupons();
+      renderPendingCoupons();
+      renderVerifiedList();
+    }
+
+    function renderAllLists() {
+      updateWallet();
+      renderCoupons();
+      renderPendingCoupons();
+      renderVerifiedList();
+      renderRecords();
+    }
+
+    function renderShop() {
+      shop.innerHTML = "";
+      shopItems.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "shop-item";
+        const owned = state.coupons.filter((entry) => entry.name === item.name).length;
+        row.innerHTML = `
+          <div>
+            <h3>${item.name}</h3>
+            <p>${item.cost} 个谷鸡鸡的mua兑换 · 已兑换 ${owned} 次</p>
+          </div>
+        `;
+        const button = document.createElement("button");
+        button.className = "buy";
+        button.textContent = "兑换";
+        button.disabled = state.balance < item.cost;
+        button.addEventListener("click", () => redeem(item));
+        row.appendChild(button);
+        shop.appendChild(row);
+      });
+    }
+
+    async function redeem(item) {
+      if (state.balance < item.cost) {
+        showToast("谷鸡鸡的mua还不够，再拼一局攒一点。");
+        return;
+      }
+      state.balance -= item.cost;
+      const coupon = {
+        code: createCouponCode(item),
+        slug: item.slug,
+        name: item.name,
+        cost: item.cost,
+        status: "pending",
+        redeemedAt: new Date().toISOString(),
+        usedAt: null
+      };
+      state.coupons.unshift(coupon);
+      state.redemptions.unshift({ name: item.name, cost: item.cost, code: coupon.code, redeemedAt: coupon.redeemedAt });
+      saveState();
+      renderAllLists();
+      await syncCouponToServer(coupon);
+      showToast(`兑换成功：${item.name}，券码已经放进券包。`);
+    }
+
+    function renderCoupons() {
+      if (!state.coupons.length) {
+        coupons.innerHTML = `<div class="empty-state">还没有券。攒够谷鸡鸡的mua后，可以在小商店兑换。</div>`;
+        return;
+      }
+
+      coupons.innerHTML = "";
+      state.coupons.forEach((coupon) => {
+        const row = document.createElement("div");
+        row.className = "coupon";
+        row.innerHTML = `
+          <div>
+            <strong>${escapeHtml(coupon.name)}</strong>
+            <span>${formatDate(coupon.redeemedAt)} 兑换 · ${coupon.cost} 个mua</span>
+            <span class="coupon-code">${escapeHtml(coupon.code)}</span>
+          </div>
+        `;
+        const button = document.createElement("button");
+        if (coupon.status === "used") {
+          button.className = "status used";
+          button.textContent = "已核销";
+          button.disabled = true;
+        } else {
+          button.className = "mini-btn";
+          button.textContent = "复制券码";
+          button.addEventListener("click", () => copyCoupon(coupon.code));
+        }
+        row.appendChild(button);
+        coupons.appendChild(row);
+      });
+    }
+
+    function renderPendingCoupons() {
+      const pending = state.coupons.filter((coupon) => coupon.status !== "used");
+      if (!pending.length) {
+        pendingCoupons.innerHTML = `<div class="empty-state">当前没有待核销券。她发来券码时，也可以直接在左边输入。</div>`;
+        return;
+      }
+
+      pendingCoupons.innerHTML = "";
+      pending.forEach((coupon) => {
+        const row = document.createElement("div");
+        row.className = "coupon";
+        row.innerHTML = `
+          <div>
+            <strong>${escapeHtml(coupon.name)}</strong>
+            <span>${formatDate(coupon.redeemedAt)} 兑换</span>
+            <span class="coupon-code">${escapeHtml(coupon.code)}</span>
+          </div>
+        `;
+        const button = document.createElement("button");
+        button.className = "mini-btn";
+        button.textContent = "核销";
+        button.addEventListener("click", () => verifyCoupon(coupon.code));
+        row.appendChild(button);
+        pendingCoupons.appendChild(row);
+      });
+    }
+
+    function renderVerifiedList() {
+      if (!state.verifiedCodes.length) {
+        verifiedList.innerHTML = `<div class="empty-state">还没有核销记录。</div>`;
+        return;
+      }
+
+      verifiedList.innerHTML = "";
+      state.verifiedCodes.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = "coupon";
+        row.innerHTML = `
+          <div>
+            <strong>${escapeHtml(entry.name)}</strong>
+            <span>${formatDate(entry.verifiedAt)} 核销 · ${entry.cost} 个mua</span>
+            <span class="coupon-code">${escapeHtml(entry.code)}</span>
+          </div>
+          <span class="status used">已核销</span>
+        `;
+        verifiedList.appendChild(row);
+      });
+    }
+
+    async function verifyCoupon(codeFromButton) {
+      if (!adminUnlocked && state.activeAccount === "admin") {
+        switchAccount("admin");
+        if (!adminUnlocked) return;
+      }
+      const code = normalizeCouponCode(codeFromButton || verifyInput.value);
+      const parsed = parseCouponCode(code);
+      if (!parsed) {
+        showToast("券码格式不对，请检查小程微发来的完整券码。");
+        return;
+      }
+      if (state.verifiedCodes.some((entry) => normalizeCouponCode(entry.code) === code)) {
+        showToast("这张券已经核销过啦。");
+        return;
+      }
+
+      if (onlineSync) {
+        const verified = await verifyCouponOnServer(code);
+        if (verified) {
+          verifyInput.value = "";
+          showToast(`核销成功：${verified.name}。小程微那边联网刷新后会自动变成已核销。`);
+          return;
+        }
+      }
+
+      const localCoupon = state.coupons.find((coupon) => normalizeCouponCode(coupon.code) === code);
+      if (localCoupon) {
+        localCoupon.status = "used";
+        localCoupon.usedAt = new Date().toISOString();
+      }
+
+      state.verifiedCodes.unshift({
+        code,
+        name: parsed.name,
+        cost: parsed.cost,
+        verifiedAt: new Date().toISOString()
+      });
+      verifyInput.value = "";
+      saveState();
+      renderAllLists();
+      showToast(`核销成功：${parsed.name}。`);
+    }
+
+    function startSyncLoop() {
+      if (syncTimer) window.clearInterval(syncTimer);
+      syncTimer = window.setInterval(syncFromServer, SYNC_INTERVAL_MS);
+    }
+
+    async function syncFromServer() {
+      try {
+        const response = await fetch("/api/sync", { cache: "no-store" });
+        if (!response.ok) throw new Error("sync unavailable");
+        const remote = await response.json();
+        onlineSync = true;
+        mergeRemoteState(remote);
+      } catch (error) {
+        onlineSync = false;
+      }
+    }
+
+    async function syncCouponToServer(coupon) {
+      try {
+        const response = await fetch("/api/coupons", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ coupon })
+        });
+        if (!response.ok) throw new Error("coupon sync failed");
+        onlineSync = true;
+        const remote = await response.json();
+        mergeRemoteState(remote);
+      } catch (error) {
+        onlineSync = false;
+      }
+    }
+
+    async function verifyCouponOnServer(code) {
+      try {
+        const response = await fetch("/api/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code, password: adminPassword })
+        });
+        const remote = await response.json();
+        if (!response.ok) {
+          showToast(remote.message || "核销失败。");
+          return null;
+        }
+        onlineSync = true;
+        mergeRemoteState(remote);
+        return remote.verified;
+      } catch (error) {
+        onlineSync = false;
+        return null;
+      }
+    }
+
+    async function loginAdmin(password) {
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password })
+        });
+        onlineSync = response.ok;
+        return response.ok;
+      } catch (error) {
+        onlineSync = false;
+        return false;
+      }
+    }
+
+    function mergeRemoteState(remote) {
+      if (!remote || !Array.isArray(remote.coupons) || !Array.isArray(remote.verifiedCodes)) return;
+      const couponMap = new Map(state.coupons.map((coupon) => [normalizeCouponCode(coupon.code), coupon]));
+      remote.coupons.forEach((coupon) => {
+        const code = normalizeCouponCode(coupon.code);
+        const current = couponMap.get(code);
+        couponMap.set(code, current ? { ...current, ...coupon } : coupon);
+      });
+      const verifiedMap = new Map(state.verifiedCodes.map((entry) => [normalizeCouponCode(entry.code), entry]));
+      remote.verifiedCodes.forEach((entry) => {
+        verifiedMap.set(normalizeCouponCode(entry.code), entry);
+      });
+      state.coupons = [...couponMap.values()].sort((a, b) => new Date(b.redeemedAt) - new Date(a.redeemedAt));
+      state.verifiedCodes = [...verifiedMap.values()].sort((a, b) => new Date(b.verifiedAt) - new Date(a.verifiedAt));
+      state.verifiedCodes.forEach((entry) => {
+        const coupon = state.coupons.find((item) => normalizeCouponCode(item.code) === normalizeCouponCode(entry.code));
+        if (coupon) {
+          coupon.status = "used";
+          coupon.usedAt = coupon.usedAt || entry.verifiedAt;
+        }
+      });
+      saveState();
+      renderAllLists();
+    }
+
+    function renderRecords() {
+      if (!state.records.length) {
+        records.innerHTML = `<div class="empty-state">还没有完成记录。小程微拼完第一张图后，这里会自动出现战绩和奖励。</div>`;
+        return;
+      }
+
+      records.innerHTML = "";
+      state.records.forEach((record) => {
+        const row = document.createElement("div");
+        row.className = "record";
+        row.innerHTML = `
+          <div>
+            <strong>${record.size} x ${record.size} · +${record.reward} 个mua</strong>
+            <span>${formatDate(record.completedAt)} · ${record.moves} 步 · ${formatTime(record.seconds)} · ${escapeHtml(record.imageName)}</span>
+          </div>
+          <span>完成</span>
+        `;
+        records.appendChild(row);
+      });
+    }
+
+    function updateWallet() {
+      balanceEl.textContent = state.balance;
+      renderShop();
+    }
+
+    function createCouponCode(item) {
+      const date = new Date();
+      const day = [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0")
+      ].join("");
+      const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+      return `GJJ-${item.slug}-${item.cost}-${day}-${random}`;
+    }
+
+    function parseCouponCode(value) {
+      const code = normalizeCouponCode(value);
+      const parts = code.split("-");
+      if (parts.length !== 5 || parts[0] !== "GJJ") return null;
+      const item = shopItems.find((entry) => entry.slug === parts[1] && String(entry.cost) === parts[2]);
+      if (!item || !/^\d{8}$/.test(parts[3]) || !/^[A-Z0-9]{5}$/.test(parts[4])) return null;
+      return { code, name: item.name, cost: item.cost };
+    }
+
+    function normalizeCouponCode(value) {
+      return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+    }
+
+    async function copyCoupon(code) {
+      try {
+        await navigator.clipboard.writeText(code);
+        showToast("券码已复制，可以发给谷鸡鸡核销。");
+      } catch (error) {
+        window.prompt("复制这张券码发给谷鸡鸡：", code);
+      }
+    }
+
+    function updateStats() {
+      movesStat.textContent = moves;
+      timeStat.textContent = formatTime(elapsedSeconds());
+      sizeStat.textContent = `${state.selectedSize} x ${state.selectedSize}`;
+    }
+
+    function startTimer() {
+      timer = window.setInterval(updateStats, 1000);
+    }
+
+    function stopTimer() {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    }
+
+    function elapsedSeconds() {
+      return startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
+    }
+
+    function neighbors(index, size) {
+      const list = [];
+      const row = Math.floor(index / size);
+      const col = index % size;
+      if (row > 0) list.push(index - size);
+      if (row < size - 1) list.push(index + size);
+      if (col > 0) list.push(index - 1);
+      if (col < size - 1) list.push(index + 1);
+      return list;
+    }
+
+    function swap(a, b) {
+      const temp = tiles[a];
+      tiles[a] = tiles[b];
+      tiles[b] = temp;
+    }
+
+    function isSolved() {
+      return tiles.every((value, index) => value === index);
+    }
+
+    function showPreview() {
+      const preview = window.open("", "_blank");
+      if (!preview) {
+        showToast("浏览器拦截了预览窗口，可以先允许弹窗。");
+        return;
+      }
+      preview.document.write(`
+        <!doctype html>
+        <title>小程微的原图</title>
+        <style>
+          body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;font-family:sans-serif}
+          img{max-width:96vw;max-height:92vh;border-radius:8px;box-shadow:0 18px 50px rgba(53,36,43,.18)}
+        </style>
+        <img alt="小程微上传的拼图原图" src="${state.imageData}">
+      `);
+      preview.document.close();
+    }
+
+    function resetData() {
+      const ok = window.confirm("确定清空积分、兑换记录、拼图记录和上传图片吗？");
+      if (!ok) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+      saveState();
+      renderAccount();
+      renderAllLists();
+      startPuzzle();
+      showToast("已经清空，可以重新开始。");
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+        const parsed = JSON.parse(raw);
+        return {
+          ...defaultState,
+          ...parsed,
+          activeAccount: ["player", "admin"].includes(parsed.activeAccount) ? parsed.activeAccount : "player",
+          selectedSize: [4, 8, 10].includes(parsed.selectedSize) ? parsed.selectedSize : 4,
+          records: Array.isArray(parsed.records) ? parsed.records : [],
+          redemptions: Array.isArray(parsed.redemptions) ? parsed.redemptions : [],
+          coupons: Array.isArray(parsed.coupons) ? parsed.coupons : [],
+          verifiedCodes: Array.isArray(parsed.verifiedCodes) ? parsed.verifiedCodes : []
+        };
+      } catch (error) {
+        return { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        showToast("图片太大时可能存不下，我已经尽量压缩了；可以换一张小一点的图。");
+      }
+    }
+
+    function resizeImage(file, maxSize) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+            const width = Math.max(1, Math.round(img.width * scale));
+            const height = Math.max(1, Math.round(img.height * scale));
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#fff8fb";
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.82));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function makeFallbackImage() {
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop stop-color="#ffcad9"/>
+              <stop offset=".52" stop-color="#fff5ba"/>
+              <stop offset="1" stop-color="#c9ecff"/>
+            </linearGradient>
+          </defs>
+          <rect width="1000" height="1000" fill="url(#g)"/>
+          <circle cx="210" cy="210" r="92" fill="#fff" opacity=".48"/>
+          <circle cx="794" cy="260" r="126" fill="#fff" opacity=".38"/>
+          <circle cx="720" cy="780" r="110" fill="#fff" opacity=".42"/>
+          <path d="M500 695C376 605 292 527 292 418c0-73 55-128 125-128 41 0 72 18 93 48 21-30 52-48 93-48 70 0 125 55 125 128 0 109-84 187-208 277l-20 14-20-14z" fill="#f06f9a"/>
+          <text x="500" y="448" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="72" font-weight="800" fill="#ffffff">小程微</text>
+          <text x="500" y="546" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="42" font-weight="700" fill="#70424f">我们的回忆拼图</text>
+        </svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${mins}:${secs}`;
+    }
+
+    function formatDate(value) {
+      const date = new Date(value);
+      return date.toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>

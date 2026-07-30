@@ -1,0 +1,16 @@
+{
+  "name": "chengwei-memory-puzzle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "小程微的回忆拼图和谷鸡鸡核销台",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
