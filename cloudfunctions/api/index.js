@@ -1,10 +1,13 @@
 const cloudbase = require("@cloudbase/node-sdk");
+const fs = require("fs");
+const path = require("path");
 
 const app = cloudbase.init({ env: cloudbase.SYMBOL_CURRENT_ENV });
 const db = app.database();
 const collection = db.collection("coupon_state");
 const STATE_ID = "state";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
+const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 
 const shopItems = [
   { slug: "QQ", name: "亲亲券", cost: 2 },
@@ -20,6 +23,10 @@ exports.main = async (event) => {
 
   if (request.method === "OPTIONS") {
     return response({}, 204);
+  }
+
+  if (request.method === "GET" && (request.path === "/" || request.path.endsWith("/index.html"))) {
+    return htmlResponse(html);
   }
 
   if (request.method === "GET" && request.path.endsWith("/sync")) {
@@ -164,5 +171,16 @@ function response(body, statusCode = 200) {
       "access-control-allow-headers": "content-type"
     },
     body: JSON.stringify(body)
+  };
+}
+
+function htmlResponse(body) {
+  return {
+    statusCode: 200,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store"
+    },
+    body
   };
 }

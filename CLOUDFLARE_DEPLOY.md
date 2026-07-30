@@ -60,7 +60,7 @@ KV namespace: chengwei_coupon_store
 添加：
 
 ```text
-ADMIN_PASSWORD=80238023
+ADMIN_PASSWORD=你设置的谷鸡鸡账号密码
 ```
 
 ## 5. 重新部署

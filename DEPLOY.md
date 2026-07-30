@@ -24,11 +24,7 @@ https://dashboard.render.com/blueprint/new
 
 ## 3. 设置密码
 
-Render 要求填写 `ADMIN_PASSWORD` 时，填：
-
-```text
-80238023
-```
+Render 要求填写 `ADMIN_PASSWORD` 时，填你设置的谷鸡鸡账号密码。
 
 ## 4. 发给小程微
 

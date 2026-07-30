@@ -9,7 +9,7 @@ try {
 }
 
 const PORT = Number(process.env.PORT || 8023);
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "80238023";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
