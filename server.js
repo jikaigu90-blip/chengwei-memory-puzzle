@@ -204,7 +204,7 @@ async function handleApi(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/login") {
     const body = await readBody(req);
-    if (String(body.password || "") !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || !String(body.password || "").trim() || String(body.password || "") !== ADMIN_PASSWORD) {
       sendJson(res, 403, { message: "谷鸡鸡账号密码不对。" });
       return true;
     }
@@ -241,7 +241,7 @@ async function handleApi(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/verify") {
     const body = await readBody(req);
-    if (String(body.password || "") !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || !String(body.password || "").trim() || String(body.password || "") !== ADMIN_PASSWORD) {
       sendJson(res, 403, { message: "谷鸡鸡账号密码不对。" });
       return true;
     }

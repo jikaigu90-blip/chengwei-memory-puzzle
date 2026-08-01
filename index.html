@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>小程微的回忆拼图</title>
+  <title>小程微的每日心动迷宫</title>
   <style>
     :root {
       --bg: #fff8fb;
@@ -15,7 +15,8 @@
       --mint: #78cdbb;
       --lemon: #ffd66b;
       --sky: #7ab8f5;
-      --paper: rgba(255, 255, 255, 0.88);
+      --leaf: #8fd7a5;
+      --paper: rgba(255, 255, 255, 0.9);
       --shadow: 0 18px 50px rgba(165, 77, 111, 0.16);
       --radius: 8px;
     }
@@ -47,7 +48,14 @@
 
     button:disabled {
       cursor: not-allowed;
-      opacity: 0.48;
+      opacity: 0.5;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
     }
 
     .app {
@@ -82,14 +90,7 @@
       box-shadow: 0 8px 22px rgba(240, 111, 154, 0.14);
       color: var(--pink);
       font-size: 24px;
-      font-weight: 800;
-    }
-
-    h1,
-    h2,
-    h3,
-    p {
-      margin: 0;
+      font-weight: 900;
     }
 
     h1 {
@@ -98,11 +99,11 @@
       letter-spacing: 0;
     }
 
-    .brand p,
-    .subtitle {
+    .subtitle,
+    .brand p {
       color: var(--muted);
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .account-tools {
@@ -165,7 +166,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      grid-template-columns: minmax(0, 1.08fr) minmax(330px, 0.92fr);
       gap: 18px;
       align-items: start;
     }
@@ -185,8 +186,9 @@
     .intro {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .intro h2,
@@ -196,39 +198,16 @@
       line-height: 1.2;
     }
 
-    .upload {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-      padding: 0 15px;
-      border: 1px solid rgba(240, 111, 154, 0.3);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--pink);
-      font-weight: 800;
-      white-space: nowrap;
-      box-shadow: 0 8px 22px rgba(240, 111, 154, 0.12);
-    }
-
-    .upload input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .controls {
+    .mode-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     .mode {
-      min-height: 74px;
-      padding: 10px;
+      min-height: 82px;
+      padding: 11px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
@@ -246,7 +225,7 @@
 
     .mode strong {
       display: block;
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.2;
     }
 
@@ -255,11 +234,47 @@
       margin-top: 5px;
       color: var(--muted);
       font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .story-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .story-btn {
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 900;
+      transition: border-color 150ms ease, background 150ms ease;
+    }
+
+    .story-btn.active {
+      border-color: rgba(240, 111, 154, 0.6);
+      background: #fff1f6;
+      color: var(--pink);
+    }
+
+    .story-btn.locked {
+      color: #b7aab0;
+      background: #faf6f8;
+    }
+
+    .story-btn.done::after {
+      content: " 已过";
+      color: var(--mint);
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -281,10 +296,11 @@
     .stat strong {
       display: block;
       margin-top: 2px;
-      font-size: 19px;
+      font-size: 18px;
+      line-height: 1.2;
     }
 
-    .board-shell {
+    .maze-shell {
       display: grid;
       place-items: center;
       padding: clamp(8px, 2vw, 16px);
@@ -295,68 +311,153 @@
         repeating-linear-gradient(45deg, rgba(240, 111, 154, 0.05) 0 8px, transparent 8px 16px);
     }
 
-    .board {
+    .maze {
       display: grid;
-      width: min(72vh, 100%);
+      width: min(70vh, 100%);
       max-width: 660px;
       aspect-ratio: 1 / 1;
-      gap: var(--gap, 3px);
-      padding: var(--gap, 3px);
+      padding: 5px;
       border-radius: 8px;
       background: #fff;
       box-shadow: inset 0 0 0 1px rgba(53, 36, 43, 0.08), 0 18px 46px rgba(53, 36, 43, 0.16);
-      touch-action: manipulation;
+      touch-action: none;
       user-select: none;
-    }
-
-    .tile {
-      position: relative;
-      min-width: 0;
-      min-height: 0;
-      border-radius: 5px;
-      background-color: #ffdfea;
-      background-repeat: no-repeat;
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.42);
-      transition: transform 120ms ease, filter 120ms ease;
       overflow: hidden;
     }
 
-    .tile:hover {
-      filter: brightness(1.04);
+    .cell {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      background: #fff8e7;
     }
 
-    .tile::after {
-      content: attr(data-num);
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 4px;
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.72);
-      color: rgba(53, 36, 43, 0.78);
-      font-size: 11px;
-      font-weight: 800;
-      line-height: 18px;
-    }
-
-    .empty {
+    .wall {
       background:
-        linear-gradient(135deg, rgba(255, 157, 185, 0.26), rgba(255, 214, 107, 0.25));
-      box-shadow: inset 0 0 0 1px rgba(240, 111, 154, 0.18);
+        linear-gradient(135deg, #f06f9a, #ff9db9);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
     }
 
-    .empty::after {
+    .path {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.75), transparent 38%),
+        #fff8e7;
+    }
+
+    .trail {
+      background:
+        radial-gradient(circle, rgba(122, 184, 245, 0.23), transparent 60%),
+        #fff8e7;
+    }
+
+    .heart::after,
+    .note::after,
+    .exit::after,
+    .player::after {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .heart::after {
+      content: "m";
+      color: #fff;
+      font-size: clamp(10px, 1.6vw, 17px);
+      text-shadow: 0 1px 4px rgba(240, 111, 154, 0.45);
+    }
+
+    .heart::before {
       content: "";
+      position: absolute;
+      inset: 22%;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
     }
 
-    .actions {
+    .note::after {
+      content: "纸";
+      color: #7c5620;
+      font-size: clamp(9px, 1.3vw, 14px);
+    }
+
+    .note::before {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 4px;
+      background: #fff1c7;
+      box-shadow: 0 0 0 1px rgba(124, 86, 32, 0.16);
+    }
+
+    .exit::after {
+      content: "终";
+      color: #2c7468;
+      font-size: clamp(10px, 1.4vw, 15px);
+    }
+
+    .exit::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 6px;
+      background: #dff8f2;
+      box-shadow: inset 0 0 0 2px rgba(120, 205, 187, 0.6);
+    }
+
+    .player::after {
+      content: "微";
+      z-index: 2;
+      color: #fff;
+      font-size: clamp(11px, 1.8vw, 18px);
+    }
+
+    .player::before {
+      content: "";
+      position: absolute;
+      z-index: 1;
+      inset: 8%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink), var(--sky));
+      box-shadow: 0 4px 12px rgba(240, 111, 154, 0.28);
+    }
+
+    .actions,
+    .dpad {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 14px;
     }
+
+    .dpad {
+      justify-content: center;
+    }
+
+    .dpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 46px);
+      grid-template-rows: repeat(3, 42px);
+      gap: 7px;
+    }
+
+    .dpad button {
+      border: 1px solid rgba(240, 111, 154, 0.24);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--pink);
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(240, 111, 154, 0.08);
+    }
+
+    .up { grid-column: 2; grid-row: 1; }
+    .left { grid-column: 1; grid-row: 2; }
+    .right { grid-column: 3; grid-row: 2; }
+    .down { grid-column: 2; grid-row: 3; }
 
     .primary,
     .ghost,
@@ -396,14 +497,17 @@
 
     .shop,
     .coupons,
-    .verify-list {
+    .verify-list,
+    .records,
+    .tips {
       display: grid;
       gap: 9px;
     }
 
     .shop-item,
     .record,
-    .coupon {
+    .coupon,
+    .tip {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
@@ -414,16 +518,22 @@
       background: #fff;
     }
 
+    .tip {
+      grid-template-columns: 1fr;
+    }
+
     .shop-item h3,
     .record strong,
-    .coupon strong {
+    .coupon strong,
+    .tip strong {
       font-size: 15px;
       line-height: 1.25;
     }
 
     .shop-item p,
     .record span,
-    .coupon span {
+    .coupon span,
+    .tip span {
       color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
@@ -497,15 +607,9 @@
       box-shadow: 0 0 0 3px rgba(240, 111, 154, 0.12);
     }
 
-    .hidden {
-      display: none !important;
-    }
-
     .records {
-      display: grid;
-      max-height: 340px;
+      max-height: 300px;
       overflow: auto;
-      gap: 9px;
       padding-right: 3px;
     }
 
@@ -519,6 +623,10 @@
       line-height: 1.55;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     .toast,
     .modal {
       position: fixed;
@@ -528,7 +636,7 @@
     .toast {
       right: 18px;
       bottom: 18px;
-      max-width: min(380px, calc(100vw - 36px));
+      max-width: min(400px, calc(100vw - 36px));
       padding: 13px 15px;
       border: 1px solid rgba(240, 111, 154, 0.24);
       border-radius: 8px;
@@ -557,7 +665,7 @@
     }
 
     .dialog {
-      width: min(420px, 100%);
+      width: min(440px, 100%);
       padding: 22px;
       border-radius: 8px;
       background: #fff;
@@ -579,17 +687,17 @@
       margin-top: 16px;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
       }
 
-      .board {
+      .maze {
         width: 100%;
       }
     }
 
-    @media (max-width: 560px) {
+    @media (max-width: 620px) {
       .app {
         width: min(100% - 18px, 1180px);
         padding-top: 10px;
@@ -613,18 +721,18 @@
         text-align: left;
       }
 
-      .controls,
+      .mode-grid,
       .stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .story-strip {
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-      }
-
-      .verify-form {
-        grid-template-columns: 1fr;
       }
 
       .primary,
@@ -633,6 +741,9 @@
         width: 100%;
       }
 
+      .verify-form {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -642,8 +753,8 @@
       <div class="brand">
         <div class="mark">微</div>
         <div>
-          <h1>小程微的回忆拼图</h1>
-          <p>上传一张喜欢的照片，拼好以后领取谷鸡鸡的mua。</p>
+          <h1>小程微的每日心动迷宫</h1>
+          <p>每天都有新路线，攒谷鸡鸡的mua换甜甜券。</p>
         </div>
       </div>
       <div class="account-tools">
@@ -662,58 +773,87 @@
       <div class="panel game-panel">
         <div class="intro">
           <div>
-            <h2>今天想拼哪张回忆？</h2>
-            <p class="subtitle">小程微可以自己上传图片，选择难度后开始挑战。</p>
+            <h2 id="mazeTitle">回忆迷宫</h2>
+            <p class="subtitle" id="mazeSubtitle">走到终点，沿路收集小心动。</p>
           </div>
-          <label class="upload">
-            上传图片
-            <input id="imageInput" type="file" accept="image/*">
-          </label>
         </div>
 
-        <div class="controls" aria-label="难度选择">
-          <button class="mode active" data-size="4">
-            <strong>4 x 4</strong>
-            <span>完成奖励 2 个谷鸡鸡的mua</span>
+        <div class="mode-grid" aria-label="模式选择">
+          <button class="mode active" id="storyModeBtn" type="button">
+            <strong>继续主线</strong>
+            <span>6 个回忆关卡，第一次通关奖励最多。</span>
           </button>
-          <button class="mode" data-size="8">
-            <strong>8 x 8</strong>
-            <span>完成奖励 4 个谷鸡鸡的mua</span>
+          <button class="mode" id="dailyModeBtn" type="button">
+            <strong>今日挑战</strong>
+            <span>每天一张固定迷宫，首通有额外mua。</span>
           </button>
-          <button class="mode" data-size="10">
-            <strong>10 x 10</strong>
-            <span>完成奖励 10 个谷鸡鸡的mua</span>
+          <button class="mode" id="randomModeBtn" type="button">
+            <strong>随机迷宫</strong>
+            <span>每局重新生成，长期玩不重复。</span>
           </button>
         </div>
+
+        <div class="story-strip" id="storyStrip" aria-label="主线关卡"></div>
 
         <div class="stats">
           <div class="stat">
-            <span>当前难度</span>
-            <strong id="sizeStat">4 x 4</strong>
+            <span>当前目标</span>
+            <strong id="goalStat">到终点</strong>
           </div>
           <div class="stat">
             <span>步数</span>
-            <strong id="movesStat">0</strong>
+            <strong id="stepsStat">0</strong>
           </div>
           <div class="stat">
             <span>用时</span>
             <strong id="timeStat">00:00</strong>
           </div>
+          <div class="stat">
+            <span>已收集</span>
+            <strong id="heartsStat">0</strong>
+          </div>
         </div>
 
-        <div class="board-shell">
-          <div class="board" id="board" aria-label="拼图棋盘"></div>
+        <div class="maze-shell">
+          <div class="maze" id="maze" aria-label="迷宫棋盘"></div>
+        </div>
+
+        <div class="dpad" aria-label="移动控制">
+          <div class="dpad-grid">
+            <button class="up" data-move="up" type="button">↑</button>
+            <button class="left" data-move="left" type="button">←</button>
+            <button class="right" data-move="right" type="button">→</button>
+            <button class="down" data-move="down" type="button">↓</button>
+          </div>
         </div>
 
         <div class="actions">
-          <button class="primary" id="startBtn">开始 / 重开</button>
-          <button class="ghost" id="previewBtn">查看原图</button>
-          <button class="ghost" id="recordsJumpBtn">拼图记录</button>
-          <button class="danger" id="resetBtn">清空数据</button>
+          <button class="primary" id="newMazeBtn" type="button">开始 / 换一局</button>
+          <button class="ghost" id="hintBtn" type="button">一句小纸条</button>
+          <button class="ghost" id="recordsJumpBtn" type="button">迷宫记录</button>
+          <button class="danger" id="resetBtn" type="button">清空数据</button>
         </div>
       </div>
 
       <aside class="side">
+        <section class="panel section">
+          <h2>长期玩法</h2>
+          <div class="tips">
+            <div class="tip">
+              <strong>每天都会变</strong>
+              <span>今日挑战按日期生成，明天就不是同一张图。</span>
+            </div>
+            <div class="tip">
+              <strong>随机迷宫无限玩</strong>
+              <span>通关后继续生成新路线，不会只剩重复刷关。</span>
+            </div>
+            <div class="tip">
+              <strong>表现也有奖励</strong>
+              <span>收集mua、少步数、每日首通都会影响奖励。</span>
+            </div>
+          </div>
+        </section>
+
         <section class="panel section">
           <h2>小商店</h2>
           <p class="subtitle">用谷鸡鸡的mua兑换甜甜奖励。</p>
@@ -727,8 +867,8 @@
         </section>
 
         <section class="panel section" id="recordsSection">
-          <h2>拼图记录</h2>
-          <p class="subtitle">每次完成都会自动记在这里。</p>
+          <h2>迷宫记录</h2>
+          <p class="subtitle">每次通关都会自动记在这里。</p>
           <div class="records" id="records"></div>
         </section>
       </aside>
@@ -749,14 +889,14 @@
         </div>
 
         <div class="empty-state">
-          用 server.js 的网页地址打开时，两边会自动同步；直接打开 HTML 文件时，券码仍然可以作为微信核销凭证。
+          用同一个线上网址打开时，两边会自动同步；她兑换后发券码给你，你核销后她那边刷新或等待同步就会变成已核销。
         </div>
       </div>
 
       <aside class="side">
         <section class="panel section">
           <h2>待核销券</h2>
-          <p class="subtitle">同一台设备兑换的券会显示在这里。</p>
+          <p class="subtitle">同一云端里兑换的券会显示在这里。</p>
           <div class="coupons" id="pendingCoupons"></div>
         </section>
 
@@ -773,16 +913,25 @@
 
   <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="dialog">
-      <h2 id="modalTitle">完成啦</h2>
+      <h2 id="modalTitle">通关啦</h2>
       <p id="modalText"></p>
-      <button class="primary" id="modalClose">收下奖励</button>
+      <button class="primary" id="modalClose" type="button">收下奖励</button>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "chengwei-memory-puzzle-v1";
+    const STORAGE_KEY = "chengwei-maze-game-v1";
     const SYNC_INTERVAL_MS = 6000;
-    const rewards = { 4: 2, 8: 4, 10: 10 };
+
+    const storyLevels = [
+      { id: 1, title: "小小心动", size: 11, reward: 2, replay: 1, hearts: 3, note: "小程微，今天也要走向开心。" },
+      { id: 2, title: "找到抱抱", size: 13, reward: 4, replay: 1, hearts: 4, note: "走错路也没关系，谷鸡鸡会在终点等你。" },
+      { id: 3, title: "奶茶小路", size: 15, reward: 6, replay: 2, hearts: 5, note: "路过奶茶味的小巷，奖励一个想你。" },
+      { id: 4, title: "回忆花园", size: 17, reward: 8, replay: 2, hearts: 6, note: "每条路都像我们一起走过的日子。" },
+      { id: 5, title: "想你路线", size: 19, reward: 10, replay: 3, hearts: 7, note: "隐藏房间里藏着谷鸡鸡的偏心。" },
+      { id: 6, title: "专属终点", size: 21, reward: 15, replay: 3, hearts: 8, note: "小程微通关啦，谷鸡鸡今天也超喜欢你。" }
+    ];
+
     const shopItems = [
       { slug: "QQ", name: "亲亲券", cost: 2 },
       { slug: "NC", name: "奶茶券", cost: 10 },
@@ -792,13 +941,13 @@
       { slug: "BX", name: "报销券（70r以内）", cost: 30 }
     ];
 
-    const fallbackImage = makeFallbackImage();
     const defaultState = {
       balance: 0,
-      selectedSize: 4,
-      imageData: fallbackImage,
-      imageName: "默认回忆封面",
       activeAccount: "player",
+      mode: "story",
+      storyLevel: 1,
+      completedStory: {},
+      dailyClaims: {},
       records: [],
       redemptions: [],
       coupons: [],
@@ -806,188 +955,88 @@
     };
 
     let state = loadState();
-    let tiles = [];
-    let emptyIndex = 0;
-    let moves = 0;
-    let startedAt = null;
+    let mazeState = null;
     let timer = null;
-    let completed = false;
-    let onlineSync = false;
-    let syncTimer = null;
     let adminUnlocked = sessionStorage.getItem("chengwei-admin-unlocked") === "yes";
     let adminPassword = sessionStorage.getItem("chengwei-admin-password") || "";
+    let onlineSync = false;
+    let syncTimer = null;
+    let touchStart = null;
 
-    const board = document.getElementById("board");
-    const balanceEl = document.getElementById("balance");
-    const sizeStat = document.getElementById("sizeStat");
-    const movesStat = document.getElementById("movesStat");
-    const timeStat = document.getElementById("timeStat");
-    const imageInput = document.getElementById("imageInput");
-    const startBtn = document.getElementById("startBtn");
-    const previewBtn = document.getElementById("previewBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const recordsJumpBtn = document.getElementById("recordsJumpBtn");
     const playerAccountBtn = document.getElementById("playerAccountBtn");
     const adminAccountBtn = document.getElementById("adminAccountBtn");
     const playerView = document.getElementById("playerView");
     const adminView = document.getElementById("adminView");
+    const balanceEl = document.getElementById("balance");
+    const storyModeBtn = document.getElementById("storyModeBtn");
+    const dailyModeBtn = document.getElementById("dailyModeBtn");
+    const randomModeBtn = document.getElementById("randomModeBtn");
+    const storyStrip = document.getElementById("storyStrip");
+    const mazeTitle = document.getElementById("mazeTitle");
+    const mazeSubtitle = document.getElementById("mazeSubtitle");
+    const goalStat = document.getElementById("goalStat");
+    const stepsStat = document.getElementById("stepsStat");
+    const timeStat = document.getElementById("timeStat");
+    const heartsStat = document.getElementById("heartsStat");
+    const mazeEl = document.getElementById("maze");
+    const newMazeBtn = document.getElementById("newMazeBtn");
+    const hintBtn = document.getElementById("hintBtn");
+    const recordsJumpBtn = document.getElementById("recordsJumpBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const shop = document.getElementById("shop");
     const coupons = document.getElementById("coupons");
     const pendingCoupons = document.getElementById("pendingCoupons");
     const verifiedList = document.getElementById("verifiedList");
+    const records = document.getElementById("records");
     const verifyInput = document.getElementById("verifyInput");
     const verifyBtn = document.getElementById("verifyBtn");
-    const records = document.getElementById("records");
     const toast = document.getElementById("toast");
     const modal = document.getElementById("modal");
     const modalText = document.getElementById("modalText");
+    const modalTitle = document.getElementById("modalTitle");
     const modalClose = document.getElementById("modalClose");
 
     init();
 
     function init() {
-      renderModes();
+      bindEvents();
       renderAccount();
       renderAllLists();
-      startPuzzle();
-      bindEvents();
+      renderStoryStrip();
+      startMaze();
       syncFromServer();
       startSyncLoop();
     }
 
     function bindEvents() {
-      document.querySelectorAll(".mode").forEach((button) => {
-        button.addEventListener("click", () => {
-          state.selectedSize = Number(button.dataset.size);
-          saveState();
-          renderModes();
-          startPuzzle();
-        });
-      });
-
-      imageInput.addEventListener("change", async (event) => {
-        const file = event.target.files && event.target.files[0];
-        if (!file) return;
-        try {
-          state.imageData = await resizeImage(file, 1000);
-          state.imageName = file.name;
-          saveState();
-          startPuzzle();
-          showToast("图片已保存，下次打开还在。");
-        } catch (error) {
-          showToast("这张图片暂时没读成功，换一张试试。");
-        } finally {
-          imageInput.value = "";
-        }
-      });
-
-      startBtn.addEventListener("click", startPuzzle);
-      previewBtn.addEventListener("click", showPreview);
+      playerAccountBtn.addEventListener("click", () => switchAccount("player"));
+      adminAccountBtn.addEventListener("click", () => switchAccount("admin"));
+      storyModeBtn.addEventListener("click", () => selectMode("story"));
+      dailyModeBtn.addEventListener("click", () => selectMode("daily"));
+      randomModeBtn.addEventListener("click", () => selectMode("random"));
+      newMazeBtn.addEventListener("click", startMaze);
+      hintBtn.addEventListener("click", showCurrentHint);
       recordsJumpBtn.addEventListener("click", () => {
         document.getElementById("recordsSection").scrollIntoView({ behavior: "smooth", block: "start" });
       });
       resetBtn.addEventListener("click", resetData);
-      modalClose.addEventListener("click", () => modal.classList.remove("show"));
-      playerAccountBtn.addEventListener("click", () => switchAccount("player"));
-      adminAccountBtn.addEventListener("click", () => switchAccount("admin"));
       verifyBtn.addEventListener("click", () => verifyCoupon());
       verifyInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") verifyCoupon();
       });
-    }
-
-    function startPuzzle() {
-      stopTimer();
-      moves = 0;
-      completed = false;
-      startedAt = Date.now();
-      const size = state.selectedSize;
-      const count = size * size;
-      tiles = Array.from({ length: count }, (_, index) => index);
-      emptyIndex = count - 1;
-      shuffleByMoves(size, count * 24);
-      if (isSolved()) shuffleByMoves(size, count * 2 + 1);
-      startTimer();
-      updateStats();
-      renderBoard();
-    }
-
-    function shuffleByMoves(size, steps) {
-      let lastEmpty = -1;
-      for (let i = 0; i < steps; i += 1) {
-        const options = neighbors(emptyIndex, size).filter((index) => index !== lastEmpty);
-        const pick = options[Math.floor(Math.random() * options.length)];
-        lastEmpty = emptyIndex;
-        swap(pick, emptyIndex);
-        emptyIndex = pick;
-      }
-    }
-
-    function renderBoard() {
-      const size = state.selectedSize;
-      board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-      board.style.setProperty("--gap", size >= 10 ? "2px" : "3px");
-      board.innerHTML = "";
-
-      tiles.forEach((tileValue, index) => {
-        const tile = document.createElement("button");
-        tile.type = "button";
-        tile.className = tileValue === size * size - 1 ? "tile empty" : "tile";
-        tile.setAttribute("aria-label", tileValue === size * size - 1 ? "空白格" : `第 ${tileValue + 1} 块`);
-
-        if (tileValue !== size * size - 1) {
-          const x = tileValue % size;
-          const y = Math.floor(tileValue / size);
-          tile.dataset.num = tileValue + 1;
-          tile.style.backgroundImage = `url("${state.imageData}")`;
-          tile.style.backgroundSize = `${size * 100}% ${size * 100}%`;
-          tile.style.backgroundPosition = `${(x / (size - 1)) * 100}% ${(y / (size - 1)) * 100}%`;
-        }
-
-        tile.addEventListener("click", () => moveTile(index));
-        board.appendChild(tile);
+      modalClose.addEventListener("click", () => modal.classList.remove("show"));
+      document.querySelectorAll("[data-move]").forEach((button) => {
+        button.addEventListener("click", () => movePlayer(button.dataset.move));
       });
+      window.addEventListener("keydown", handleKeydown);
+      mazeEl.addEventListener("touchstart", handleTouchStart, { passive: false });
+      mazeEl.addEventListener("touchend", handleTouchEnd, { passive: false });
     }
 
-    function moveTile(index) {
-      if (completed || !neighbors(emptyIndex, state.selectedSize).includes(index)) return;
-      swap(index, emptyIndex);
-      emptyIndex = index;
-      moves += 1;
-      updateStats();
-      renderBoard();
-
-      if (isSolved()) finishPuzzle();
-    }
-
-    function finishPuzzle() {
-      completed = true;
-      stopTimer();
-      const size = state.selectedSize;
-      const reward = rewards[size];
-      const seconds = elapsedSeconds();
-      state.balance += reward;
-      state.records.unshift({
-        size,
-        moves,
-        seconds,
-        reward,
-        imageName: state.imageName,
-        completedAt: new Date().toISOString()
-      });
-      state.records = state.records.slice(0, 80);
+    function selectMode(mode) {
+      state.mode = mode;
       saveState();
-      renderAllLists();
-      modalText.textContent = `小程微完成了 ${size} x ${size} 拼图，获得 ${reward} 个谷鸡鸡的mua。现在可以去小商店兑换奖励啦。`;
-      modal.classList.add("show");
-    }
-
-    function renderModes() {
-      document.querySelectorAll(".mode").forEach((button) => {
-        const active = Number(button.dataset.size) === state.selectedSize;
-        button.classList.toggle("active", active);
-      });
-      sizeStat.textContent = `${state.selectedSize} x ${state.selectedSize}`;
+      startMaze();
     }
 
     async function switchAccount(account) {
@@ -1014,14 +1063,333 @@
       adminAccountBtn.classList.toggle("active", isAdmin);
       playerView.classList.toggle("hidden", isAdmin);
       adminView.classList.toggle("hidden", !isAdmin);
-      updateWallet();
-      renderCoupons();
-      renderPendingCoupons();
-      renderVerifiedList();
+      renderAllLists();
+    }
+
+    function renderModeButtons() {
+      storyModeBtn.classList.toggle("active", state.mode === "story");
+      dailyModeBtn.classList.toggle("active", state.mode === "daily");
+      randomModeBtn.classList.toggle("active", state.mode === "random");
+    }
+
+    function renderStoryStrip() {
+      storyStrip.innerHTML = "";
+      storyLevels.forEach((level) => {
+        const button = document.createElement("button");
+        const unlocked = isStoryUnlocked(level.id);
+        button.type = "button";
+        button.className = "story-btn";
+        button.textContent = level.id;
+        button.title = level.title;
+        button.classList.toggle("active", state.mode === "story" && state.storyLevel === level.id);
+        button.classList.toggle("locked", !unlocked);
+        button.classList.toggle("done", Boolean(state.completedStory[level.id]));
+        button.disabled = !unlocked;
+        button.addEventListener("click", () => {
+          state.mode = "story";
+          state.storyLevel = level.id;
+          saveState();
+          startMaze();
+        });
+        storyStrip.appendChild(button);
+      });
+    }
+
+    function isStoryUnlocked(levelId) {
+      if (levelId === 1) return true;
+      return Boolean(state.completedStory[levelId - 1]);
+    }
+
+    function startMaze() {
+      stopTimer();
+      const config = getCurrentConfig();
+      const seed = config.seed;
+      const rng = mulberry32(hashString(seed));
+      const maze = generateMaze(config.size, config.size, rng);
+      const paths = listPaths(maze.grid, maze.width, maze.height)
+        .filter((cell) => !(cell.x === 1 && cell.y === 1))
+        .filter((cell) => !(cell.x === maze.width - 2 && cell.y === maze.height - 2));
+      shuffle(paths, rng);
+
+      const hearts = new Map();
+      paths.slice(0, config.hearts).forEach((cell, index) => {
+        hearts.set(key(cell.x, cell.y), { value: 1, index });
+      });
+
+      const noteCell = paths[config.hearts + 1] || paths[0];
+      const notes = new Map();
+      if (noteCell) notes.set(key(noteCell.x, noteCell.y), config.note);
+
+      mazeState = {
+        ...config,
+        grid: maze.grid,
+        width: maze.width,
+        height: maze.height,
+        player: { x: 1, y: 1 },
+        exit: { x: maze.width - 2, y: maze.height - 2 },
+        hearts,
+        notes,
+        collected: 0,
+        steps: 0,
+        startedAt: Date.now(),
+        finished: false,
+        trail: new Set([key(1, 1)])
+      };
+
+      renderModeButtons();
+      renderStoryStrip();
+      updateMazeText();
+      renderMaze();
+      startTimer();
+    }
+
+    function getCurrentConfig() {
+      if (state.mode === "daily") {
+        const day = todayKey();
+        return {
+          mode: "daily",
+          title: "今日挑战",
+          subtitle: "今天专属路线，首通多给 5 个mua。",
+          size: 19,
+          reward: state.dailyClaims[day] ? 5 : 10,
+          hearts: 7,
+          note: "今天的小程微也被认真惦记着。",
+          seed: `daily-${day}`,
+          recordKey: `daily-${day}`
+        };
+      }
+
+      if (state.mode === "random") {
+        const size = [15, 17, 19, 21][Math.floor(Math.random() * 4)];
+        return {
+          mode: "random",
+          title: "随机迷宫",
+          subtitle: "每一局都是新路线，收集越多奖励越多。",
+          size,
+          reward: Math.max(4, Math.floor(size / 3)),
+          hearts: Math.floor(size / 3) + 1,
+          note: randomNote(),
+          seed: `random-${Date.now()}-${Math.random()}`,
+          recordKey: "random"
+        };
+      }
+
+      const level = storyLevels.find((item) => item.id === state.storyLevel) || storyLevels[0];
+      const firstClear = !state.completedStory[level.id];
+      return {
+        mode: "story",
+        levelId: level.id,
+        title: `主线 ${level.id}：${level.title}`,
+        subtitle: firstClear ? "第一次通关给完整奖励。" : "重玩也能拿少量mua。",
+        size: level.size,
+        reward: firstClear ? level.reward : level.replay,
+        hearts: level.hearts,
+        note: level.note,
+        seed: `story-${level.id}-${firstClear ? "first" : Date.now()}`,
+        recordKey: `story-${level.id}`
+      };
+    }
+
+    function updateMazeText() {
+      mazeTitle.textContent = mazeState.title;
+      mazeSubtitle.textContent = mazeState.subtitle;
+      goalStat.textContent = mazeState.mode === "story" ? `第 ${mazeState.levelId} 关` : "到终点";
+      updateStats();
+    }
+
+    function renderMaze() {
+      mazeEl.style.gridTemplateColumns = `repeat(${mazeState.width}, 1fr)`;
+      mazeEl.style.gridTemplateRows = `repeat(${mazeState.height}, 1fr)`;
+      mazeEl.innerHTML = "";
+
+      for (let y = 0; y < mazeState.height; y += 1) {
+        for (let x = 0; x < mazeState.width; x += 1) {
+          const cell = document.createElement("div");
+          const cellKey = key(x, y);
+          cell.className = "cell";
+          cell.classList.add(mazeState.grid[y][x] === 1 ? "wall" : "path");
+          if (mazeState.trail.has(cellKey) && mazeState.grid[y][x] === 0) cell.classList.add("trail");
+          if (mazeState.hearts.has(cellKey)) cell.classList.add("heart");
+          if (mazeState.notes.has(cellKey)) cell.classList.add("note");
+          if (mazeState.exit.x === x && mazeState.exit.y === y) cell.classList.add("exit");
+          if (mazeState.player.x === x && mazeState.player.y === y) cell.classList.add("player");
+          mazeEl.appendChild(cell);
+        }
+      }
+    }
+
+    function movePlayer(direction) {
+      if (!mazeState || mazeState.finished) return;
+      const delta = {
+        up: { x: 0, y: -1 },
+        down: { x: 0, y: 1 },
+        left: { x: -1, y: 0 },
+        right: { x: 1, y: 0 }
+      }[direction];
+      if (!delta) return;
+
+      const next = {
+        x: mazeState.player.x + delta.x,
+        y: mazeState.player.y + delta.y
+      };
+      if (!isWalkable(next.x, next.y)) return;
+
+      mazeState.player = next;
+      mazeState.steps += 1;
+      mazeState.trail.add(key(next.x, next.y));
+
+      const cellKey = key(next.x, next.y);
+      if (mazeState.hearts.has(cellKey)) {
+        const heart = mazeState.hearts.get(cellKey);
+        mazeState.collected += heart.value;
+        mazeState.hearts.delete(cellKey);
+        showToast("收集到 1 个谷鸡鸡的mua。");
+      }
+      if (mazeState.notes.has(cellKey)) {
+        showToast(mazeState.notes.get(cellKey));
+        mazeState.notes.delete(cellKey);
+      }
+
+      updateStats();
+      renderMaze();
+
+      if (next.x === mazeState.exit.x && next.y === mazeState.exit.y) {
+        finishMaze();
+      }
+    }
+
+    function isWalkable(x, y) {
+      return x >= 0 && y >= 0 && x < mazeState.width && y < mazeState.height && mazeState.grid[y][x] === 0;
+    }
+
+    function finishMaze() {
+      mazeState.finished = true;
+      stopTimer();
+      const seconds = elapsedSeconds();
+      const parBonus = mazeState.steps <= mazeState.size * mazeState.size * 0.38 ? 2 : 0;
+      const reward = mazeState.reward + mazeState.collected + parBonus;
+      state.balance += reward;
+
+      if (mazeState.mode === "story") {
+        state.completedStory[mazeState.levelId] = true;
+        if (mazeState.levelId < storyLevels.length && state.storyLevel === mazeState.levelId) {
+          state.storyLevel = mazeState.levelId + 1;
+        }
+      }
+      if (mazeState.mode === "daily") {
+        state.dailyClaims[todayKey()] = true;
+      }
+
+      state.records.unshift({
+        mode: mazeState.mode,
+        title: mazeState.title,
+        steps: mazeState.steps,
+        seconds,
+        collected: mazeState.collected,
+        reward,
+        completedAt: new Date().toISOString()
+      });
+      state.records = state.records.slice(0, 100);
+      saveState();
+      renderAllLists();
+      renderStoryStrip();
+
+      const bonusText = parBonus ? "还拿到了少步数奖励。" : "下次可以挑战更少步数。";
+      modalTitle.textContent = "小程微通关啦";
+      modalText.textContent = `${mazeState.title} 完成，获得 ${reward} 个谷鸡鸡的mua。${bonusText}`;
+      modal.classList.add("show");
+    }
+
+    function showCurrentHint() {
+      if (!mazeState) return;
+      showToast(mazeState.note);
+    }
+
+    function handleKeydown(event) {
+      const map = {
+        ArrowUp: "up",
+        ArrowDown: "down",
+        ArrowLeft: "left",
+        ArrowRight: "right",
+        w: "up",
+        s: "down",
+        a: "left",
+        d: "right"
+      };
+      const direction = map[event.key];
+      if (direction && !playerView.classList.contains("hidden")) {
+        event.preventDefault();
+        movePlayer(direction);
+      }
+    }
+
+    function handleTouchStart(event) {
+      const touch = event.changedTouches[0];
+      touchStart = { x: touch.clientX, y: touch.clientY };
+      event.preventDefault();
+    }
+
+    function handleTouchEnd(event) {
+      if (!touchStart) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - touchStart.x;
+      const dy = touch.clientY - touchStart.y;
+      touchStart = null;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        movePlayer(dx > 0 ? "right" : "left");
+      } else {
+        movePlayer(dy > 0 ? "down" : "up");
+      }
+      event.preventDefault();
+    }
+
+    function generateMaze(width, height, rng) {
+      const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => 1));
+      const stack = [{ x: 1, y: 1 }];
+      grid[1][1] = 0;
+
+      while (stack.length) {
+        const current = stack[stack.length - 1];
+        const dirs = shuffle([
+          { x: 0, y: -2 },
+          { x: 0, y: 2 },
+          { x: -2, y: 0 },
+          { x: 2, y: 0 }
+        ], rng);
+        let carved = false;
+
+        for (const dir of dirs) {
+          const nx = current.x + dir.x;
+          const ny = current.y + dir.y;
+          if (nx <= 0 || ny <= 0 || nx >= width - 1 || ny >= height - 1 || grid[ny][nx] === 0) continue;
+          grid[current.y + dir.y / 2][current.x + dir.x / 2] = 0;
+          grid[ny][nx] = 0;
+          stack.push({ x: nx, y: ny });
+          carved = true;
+          break;
+        }
+
+        if (!carved) stack.pop();
+      }
+
+      grid[height - 2][width - 2] = 0;
+      return { grid, width, height };
+    }
+
+    function listPaths(grid, width, height) {
+      const paths = [];
+      for (let y = 1; y < height - 1; y += 1) {
+        for (let x = 1; x < width - 1; x += 1) {
+          if (grid[y][x] === 0) paths.push({ x, y });
+        }
+      }
+      return paths;
     }
 
     function renderAllLists() {
       updateWallet();
+      renderShop();
       renderCoupons();
       renderPendingCoupons();
       renderVerifiedList();
@@ -1052,7 +1420,7 @@
 
     async function redeem(item) {
       if (state.balance < item.cost) {
-        showToast("谷鸡鸡的mua还不够，再拼一局攒一点。");
+        showToast("谷鸡鸡的mua还不够，再走几局迷宫攒一点。");
         return;
       }
       state.balance -= item.cost;
@@ -1155,10 +1523,6 @@
     }
 
     async function verifyCoupon(codeFromButton) {
-      if (!adminUnlocked && state.activeAccount === "admin") {
-        switchAccount("admin");
-        if (!adminUnlocked) return;
-      }
       const code = normalizeCouponCode(codeFromButton || verifyInput.value);
       const parsed = parseCouponCode(code);
       if (!parsed) {
@@ -1170,31 +1534,59 @@
         return;
       }
 
-      if (onlineSync) {
-        const verified = await verifyCouponOnServer(code);
-        if (verified) {
-          verifyInput.value = "";
-          showToast(`核销成功：${verified.name}。小程微那边联网刷新后会自动变成已核销。`);
-          return;
-        }
+      const verified = await verifyCouponOnServer(code);
+      if (verified) {
+        verifyInput.value = "";
+        showToast(`核销成功：${verified.name}。小程微那边联网刷新后会自动变成已核销。`);
+        return;
       }
 
-      const localCoupon = state.coupons.find((coupon) => normalizeCouponCode(coupon.code) === code);
-      if (localCoupon) {
-        localCoupon.status = "used";
-        localCoupon.usedAt = new Date().toISOString();
+      showToast("核销失败，请确认网络和券码。");
+    }
+
+    function renderRecords() {
+      if (!state.records.length) {
+        records.innerHTML = `<div class="empty-state">还没有迷宫记录。小程微通关第一局后，这里会自动出现战绩和奖励。</div>`;
+        return;
       }
 
-      state.verifiedCodes.unshift({
-        code,
-        name: parsed.name,
-        cost: parsed.cost,
-        verifiedAt: new Date().toISOString()
+      records.innerHTML = "";
+      state.records.forEach((record) => {
+        const row = document.createElement("div");
+        row.className = "record";
+        row.innerHTML = `
+          <div>
+            <strong>${escapeHtml(record.title)} · +${record.reward} 个mua</strong>
+            <span>${formatDate(record.completedAt)} · ${record.steps} 步 · ${formatTime(record.seconds)} · 收集 ${record.collected}</span>
+          </div>
+          <span>通关</span>
+        `;
+        records.appendChild(row);
       });
-      verifyInput.value = "";
-      saveState();
-      renderAllLists();
-      showToast(`核销成功：${parsed.name}。`);
+    }
+
+    function updateWallet() {
+      balanceEl.textContent = state.balance;
+    }
+
+    function updateStats() {
+      if (!mazeState) return;
+      stepsStat.textContent = mazeState.steps;
+      timeStat.textContent = formatTime(elapsedSeconds());
+      heartsStat.textContent = `${mazeState.collected}/${mazeState.collected + mazeState.hearts.size}`;
+    }
+
+    function startTimer() {
+      timer = window.setInterval(updateStats, 1000);
+    }
+
+    function stopTimer() {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    }
+
+    function elapsedSeconds() {
+      return mazeState ? Math.max(0, Math.floor((Date.now() - mazeState.startedAt) / 1000)) : 0;
     }
 
     function startSyncLoop() {
@@ -1230,6 +1622,21 @@
       }
     }
 
+    async function loginAdmin(password) {
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password })
+        });
+        onlineSync = response.ok;
+        return response.ok;
+      } catch (error) {
+        onlineSync = false;
+        return false;
+      }
+    }
+
     async function verifyCouponOnServer(code) {
       try {
         const response = await fetch("/api/verify", {
@@ -1248,21 +1655,6 @@
       } catch (error) {
         onlineSync = false;
         return null;
-      }
-    }
-
-    async function loginAdmin(password) {
-      try {
-        const response = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password })
-        });
-        onlineSync = response.ok;
-        return response.ok;
-      } catch (error) {
-        onlineSync = false;
-        return false;
       }
     }
 
@@ -1289,32 +1681,6 @@
       });
       saveState();
       renderAllLists();
-    }
-
-    function renderRecords() {
-      if (!state.records.length) {
-        records.innerHTML = `<div class="empty-state">还没有完成记录。小程微拼完第一张图后，这里会自动出现战绩和奖励。</div>`;
-        return;
-      }
-
-      records.innerHTML = "";
-      state.records.forEach((record) => {
-        const row = document.createElement("div");
-        row.className = "record";
-        row.innerHTML = `
-          <div>
-            <strong>${record.size} x ${record.size} · +${record.reward} 个mua</strong>
-            <span>${formatDate(record.completedAt)} · ${record.moves} 步 · ${formatTime(record.seconds)} · ${escapeHtml(record.imageName)}</span>
-          </div>
-          <span>完成</span>
-        `;
-        records.appendChild(row);
-      });
-    }
-
-    function updateWallet() {
-      balanceEl.textContent = state.balance;
-      renderShop();
     }
 
     function createCouponCode(item) {
@@ -1350,156 +1716,107 @@
       }
     }
 
-    function updateStats() {
-      movesStat.textContent = moves;
-      timeStat.textContent = formatTime(elapsedSeconds());
-      sizeStat.textContent = `${state.selectedSize} x ${state.selectedSize}`;
-    }
-
-    function startTimer() {
-      timer = window.setInterval(updateStats, 1000);
-    }
-
-    function stopTimer() {
-      if (timer) window.clearInterval(timer);
-      timer = null;
-    }
-
-    function elapsedSeconds() {
-      return startedAt ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000)) : 0;
-    }
-
-    function neighbors(index, size) {
-      const list = [];
-      const row = Math.floor(index / size);
-      const col = index % size;
-      if (row > 0) list.push(index - size);
-      if (row < size - 1) list.push(index + size);
-      if (col > 0) list.push(index - 1);
-      if (col < size - 1) list.push(index + 1);
-      return list;
-    }
-
-    function swap(a, b) {
-      const temp = tiles[a];
-      tiles[a] = tiles[b];
-      tiles[b] = temp;
-    }
-
-    function isSolved() {
-      return tiles.every((value, index) => value === index);
-    }
-
-    function showPreview() {
-      const preview = window.open("", "_blank");
-      if (!preview) {
-        showToast("浏览器拦截了预览窗口，可以先允许弹窗。");
-        return;
-      }
-      preview.document.write(`
-        <!doctype html>
-        <title>小程微的原图</title>
-        <style>
-          body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8fb;font-family:sans-serif}
-          img{max-width:96vw;max-height:92vh;border-radius:8px;box-shadow:0 18px 50px rgba(53,36,43,.18)}
-        </style>
-        <img alt="小程微上传的拼图原图" src="${state.imageData}">
-      `);
-      preview.document.close();
-    }
-
     function resetData() {
-      const ok = window.confirm("确定清空积分、兑换记录、拼图记录和上传图片吗？");
+      const ok = window.confirm("确定清空本机积分、券包和迷宫记录吗？云端已核销记录不会被清空。");
       if (!ok) return;
       localStorage.removeItem(STORAGE_KEY);
-      state = { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+      state = { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [], completedStory: {}, dailyClaims: {} };
       saveState();
       renderAccount();
-      renderAllLists();
-      startPuzzle();
-      showToast("已经清空，可以重新开始。");
+      startMaze();
+      showToast("本机记录已清空，可以重新开始。");
     }
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+        if (!raw) return cloneDefaultState();
         const parsed = JSON.parse(raw);
         return {
-          ...defaultState,
+          ...cloneDefaultState(),
           ...parsed,
           activeAccount: ["player", "admin"].includes(parsed.activeAccount) ? parsed.activeAccount : "player",
-          selectedSize: [4, 8, 10].includes(parsed.selectedSize) ? parsed.selectedSize : 4,
+          mode: ["story", "daily", "random"].includes(parsed.mode) ? parsed.mode : "story",
+          storyLevel: storyLevels.some((level) => level.id === parsed.storyLevel) ? parsed.storyLevel : 1,
+          completedStory: parsed.completedStory && typeof parsed.completedStory === "object" ? parsed.completedStory : {},
+          dailyClaims: parsed.dailyClaims && typeof parsed.dailyClaims === "object" ? parsed.dailyClaims : {},
           records: Array.isArray(parsed.records) ? parsed.records : [],
           redemptions: Array.isArray(parsed.redemptions) ? parsed.redemptions : [],
           coupons: Array.isArray(parsed.coupons) ? parsed.coupons : [],
           verifiedCodes: Array.isArray(parsed.verifiedCodes) ? parsed.verifiedCodes : []
         };
       } catch (error) {
-        return { ...defaultState, records: [], redemptions: [], coupons: [], verifiedCodes: [] };
+        return cloneDefaultState();
       }
+    }
+
+    function cloneDefaultState() {
+      return {
+        ...defaultState,
+        completedStory: {},
+        dailyClaims: {},
+        records: [],
+        redemptions: [],
+        coupons: [],
+        verifiedCodes: []
+      };
     }
 
     function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (error) {
-        showToast("图片太大时可能存不下，我已经尽量压缩了；可以换一张小一点的图。");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function todayKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    }
+
+    function randomNote() {
+      const notes = [
+        "这条路随机生成，但想你不是随机的。",
+        "小程微走到哪，谷鸡鸡的mua就跟到哪。",
+        "如果遇到死路，就当是偷偷多逛了一会。",
+        "今天也要奖励勇敢的小程微。",
+        "迷宫很绕，喜欢你很直。"
+      ];
+      return notes[Math.floor(Math.random() * notes.length)];
+    }
+
+    function key(x, y) {
+      return `${x},${y}`;
+    }
+
+    function shuffle(list, rng) {
+      for (let i = list.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(rng() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
       }
+      return list;
     }
 
-    function resizeImage(file, maxSize) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = reject;
-        reader.onload = () => {
-          const img = new Image();
-          img.onerror = reject;
-          img.onload = () => {
-            const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-            const width = Math.max(1, Math.round(img.width * scale));
-            const height = Math.max(1, Math.round(img.height * scale));
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#fff8fb";
-            ctx.fillRect(0, 0, width, height);
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL("image/jpeg", 0.82));
-          };
-          img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-      });
+    function hashString(value) {
+      let hash = 2166136261;
+      for (let i = 0; i < value.length; i += 1) {
+        hash ^= value.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
     }
 
-    function makeFallbackImage() {
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
-          <defs>
-            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-              <stop stop-color="#ffcad9"/>
-              <stop offset=".52" stop-color="#fff5ba"/>
-              <stop offset="1" stop-color="#c9ecff"/>
-            </linearGradient>
-          </defs>
-          <rect width="1000" height="1000" fill="url(#g)"/>
-          <circle cx="210" cy="210" r="92" fill="#fff" opacity=".48"/>
-          <circle cx="794" cy="260" r="126" fill="#fff" opacity=".38"/>
-          <circle cx="720" cy="780" r="110" fill="#fff" opacity=".42"/>
-          <path d="M500 695C376 605 292 527 292 418c0-73 55-128 125-128 41 0 72 18 93 48 21-30 52-48 93-48 70 0 125 55 125 128 0 109-84 187-208 277l-20 14-20-14z" fill="#f06f9a"/>
-          <text x="500" y="448" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="72" font-weight="800" fill="#ffffff">小程微</text>
-          <text x="500" y="546" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-size="42" font-weight="700" fill="#70424f">我们的回忆拼图</text>
-        </svg>`;
-      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    function mulberry32(seed) {
+      return function rng() {
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
     }
 
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add("show");
       window.clearTimeout(showToast.timer);
-      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2400);
     }
 
     function formatTime(seconds) {

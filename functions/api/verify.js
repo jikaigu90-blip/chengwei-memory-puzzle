@@ -9,7 +9,8 @@ const shopItems = [
 
 export async function onRequestPost(context) {
   const body = await context.request.json().catch(() => ({}));
-  if (String(body.password || "") !== context.env.ADMIN_PASSWORD) {
+  const adminPassword = context.env.ADMIN_PASSWORD || "";
+  if (!String(body.password || "").trim() || String(body.password || "") !== adminPassword) {
     return json({ message: "谷鸡鸡账号密码不对。" }, 403);
   }
 

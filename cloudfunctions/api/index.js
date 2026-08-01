@@ -34,7 +34,7 @@ exports.main = async (event) => {
   }
 
   if (request.method === "POST" && request.path.endsWith("/login")) {
-    if (String(request.body.password || "") !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || !String(request.body.password || "").trim() || String(request.body.password || "") !== ADMIN_PASSWORD) {
       return response({ message: "谷鸡鸡账号密码不对。" }, 403);
     }
     return response({ ok: true });
@@ -62,7 +62,7 @@ exports.main = async (event) => {
   }
 
   if (request.method === "POST" && request.path.endsWith("/verify")) {
-    if (String(request.body.password || "") !== ADMIN_PASSWORD) {
+    if (!ADMIN_PASSWORD || !String(request.body.password || "").trim() || String(request.body.password || "") !== ADMIN_PASSWORD) {
       return response({ message: "谷鸡鸡账号密码不对。" }, 403);
     }
 
