@@ -351,6 +351,9 @@
     }
 
     .heart::after,
+    .bonus::after,
+    .trap::after,
+    .portal::after,
     .note::after,
     .exit::after,
     .player::after {
@@ -376,6 +379,51 @@
       border-radius: 50%;
       background: var(--pink);
       box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .bonus::after {
+      content: "+";
+      color: #2c7468;
+      font-size: clamp(11px, 1.7vw, 18px);
+    }
+
+    .bonus::before {
+      content: "";
+      position: absolute;
+      inset: 17%;
+      border-radius: 50%;
+      background: #dff8f2;
+      box-shadow: inset 0 0 0 2px rgba(120, 205, 187, 0.72);
+    }
+
+    .trap::after {
+      content: "!";
+      color: #b53d58;
+      font-size: clamp(11px, 1.7vw, 18px);
+    }
+
+    .trap::before {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 6px;
+      background: #ffe3e8;
+      box-shadow: inset 0 0 0 2px rgba(240, 111, 154, 0.46);
+    }
+
+    .portal::after {
+      content: "传";
+      color: #346a9d;
+      font-size: clamp(9px, 1.35vw, 14px);
+    }
+
+    .portal::before {
+      content: "";
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      background: #e3f1ff;
+      box-shadow: inset 0 0 0 2px rgba(122, 184, 245, 0.68);
     }
 
     .note::after {
@@ -924,12 +972,12 @@
     const SYNC_INTERVAL_MS = 6000;
 
     const storyLevels = [
-      { id: 1, title: "小小心动", size: 11, reward: 2, replay: 1, hearts: 3, note: "小程微，今天也要走向开心。" },
-      { id: 2, title: "找到抱抱", size: 13, reward: 4, replay: 1, hearts: 4, note: "走错路也没关系，谷鸡鸡会在终点等你。" },
-      { id: 3, title: "奶茶小路", size: 15, reward: 6, replay: 2, hearts: 5, note: "路过奶茶味的小巷，奖励一个想你。" },
-      { id: 4, title: "回忆花园", size: 17, reward: 8, replay: 2, hearts: 6, note: "每条路都像我们一起走过的日子。" },
-      { id: 5, title: "想你路线", size: 19, reward: 10, replay: 3, hearts: 7, note: "隐藏房间里藏着谷鸡鸡的偏心。" },
-      { id: 6, title: "专属终点", size: 21, reward: 15, replay: 3, hearts: 8, note: "小程微通关啦，谷鸡鸡今天也超喜欢你。" }
+      { id: 1, title: "小小心动", size: 13, reward: 2, replay: 1, hearts: 3, bonus: 1, traps: 1, portals: 0, note: "小程微，今天也要走向开心。" },
+      { id: 2, title: "找到抱抱", size: 15, reward: 4, replay: 1, hearts: 4, bonus: 1, traps: 2, portals: 0, note: "走错路也没关系，谷鸡鸡会在终点等你。" },
+      { id: 3, title: "奶茶小路", size: 17, reward: 6, replay: 2, hearts: 5, bonus: 2, traps: 2, portals: 2, note: "路过奶茶味的小巷，奖励一个想你。" },
+      { id: 4, title: "回忆花园", size: 19, reward: 8, replay: 2, hearts: 6, bonus: 2, traps: 3, portals: 2, note: "每条路都像我们一起走过的日子。" },
+      { id: 5, title: "想你路线", size: 21, reward: 10, replay: 3, hearts: 7, bonus: 3, traps: 4, portals: 2, note: "隐藏房间里藏着谷鸡鸡的偏心。" },
+      { id: 6, title: "专属终点", size: 23, reward: 15, replay: 3, hearts: 8, bonus: 3, traps: 5, portals: 4, note: "小程微通关啦，谷鸡鸡今天也超喜欢你。" }
     ];
 
     const shopItems = [
@@ -1116,7 +1164,28 @@
         hearts.set(key(cell.x, cell.y), { value: 1, index });
       });
 
-      const noteCell = paths[config.hearts + 1] || paths[0];
+      const bonus = new Map();
+      paths.slice(config.hearts, config.hearts + config.bonus).forEach((cell, index) => {
+        bonus.set(key(cell.x, cell.y), { value: 2 + (index % 2) });
+      });
+
+      const trapStart = config.hearts + config.bonus;
+      const traps = new Map();
+      paths.slice(trapStart, trapStart + config.traps).forEach((cell, index) => {
+        traps.set(key(cell.x, cell.y), { penalty: 3 + (index % 3) });
+      });
+
+      const portalStart = trapStart + config.traps;
+      const portals = new Map();
+      const portalCells = paths.slice(portalStart, portalStart + config.portals);
+      for (let i = 0; i + 1 < portalCells.length; i += 2) {
+        const a = portalCells[i];
+        const b = portalCells[i + 1];
+        portals.set(key(a.x, a.y), { x: b.x, y: b.y });
+        portals.set(key(b.x, b.y), { x: a.x, y: a.y });
+      }
+
+      const noteCell = paths[portalStart + config.portals + 1] || paths[0];
       const notes = new Map();
       if (noteCell) notes.set(key(noteCell.x, noteCell.y), config.note);
 
@@ -1128,6 +1197,9 @@
         player: { x: 1, y: 1 },
         exit: { x: maze.width - 2, y: maze.height - 2 },
         hearts,
+        bonus,
+        traps,
+        portals,
         notes,
         collected: 0,
         steps: 0,
@@ -1150,9 +1222,12 @@
           mode: "daily",
           title: "今日挑战",
           subtitle: "今天专属路线，首通多给 5 个mua。",
-          size: 19,
+          size: 23,
           reward: state.dailyClaims[day] ? 5 : 10,
-          hearts: 7,
+          hearts: 8,
+          bonus: 3,
+          traps: 5,
+          portals: 4,
           note: "今天的小程微也被认真惦记着。",
           seed: `daily-${day}`,
           recordKey: `daily-${day}`
@@ -1160,7 +1235,7 @@
       }
 
       if (state.mode === "random") {
-        const size = [15, 17, 19, 21][Math.floor(Math.random() * 4)];
+        const size = [17, 19, 21, 23][Math.floor(Math.random() * 4)];
         return {
           mode: "random",
           title: "随机迷宫",
@@ -1168,6 +1243,9 @@
           size,
           reward: Math.max(4, Math.floor(size / 3)),
           hearts: Math.floor(size / 3) + 1,
+          bonus: Math.max(2, Math.floor(size / 8)),
+          traps: Math.max(2, Math.floor(size / 5)),
+          portals: size >= 19 ? 2 : 0,
           note: randomNote(),
           seed: `random-${Date.now()}-${Math.random()}`,
           recordKey: "random"
@@ -1184,6 +1262,9 @@
         size: level.size,
         reward: firstClear ? level.reward : level.replay,
         hearts: level.hearts,
+        bonus: level.bonus,
+        traps: level.traps,
+        portals: level.portals,
         note: level.note,
         seed: `story-${level.id}-${firstClear ? "first" : Date.now()}`,
         recordKey: `story-${level.id}`
@@ -1210,11 +1291,49 @@
           cell.classList.add(mazeState.grid[y][x] === 1 ? "wall" : "path");
           if (mazeState.trail.has(cellKey) && mazeState.grid[y][x] === 0) cell.classList.add("trail");
           if (mazeState.hearts.has(cellKey)) cell.classList.add("heart");
+          if (mazeState.bonus.has(cellKey)) cell.classList.add("bonus");
+          if (mazeState.traps.has(cellKey)) cell.classList.add("trap");
+          if (mazeState.portals.has(cellKey)) cell.classList.add("portal");
           if (mazeState.notes.has(cellKey)) cell.classList.add("note");
           if (mazeState.exit.x === x && mazeState.exit.y === y) cell.classList.add("exit");
           if (mazeState.player.x === x && mazeState.player.y === y) cell.classList.add("player");
           mazeEl.appendChild(cell);
         }
+      }
+    }
+
+    function applyCellEvents(position, options = { allowPortal: true }) {
+      const cellKey = key(position.x, position.y);
+      if (mazeState.hearts.has(cellKey)) {
+        const heart = mazeState.hearts.get(cellKey);
+        mazeState.collected += heart.value;
+        mazeState.hearts.delete(cellKey);
+        showToast("收集到 1 个谷鸡鸡的mua。");
+      }
+      if (mazeState.bonus.has(cellKey)) {
+        const item = mazeState.bonus.get(cellKey);
+        mazeState.collected += item.value;
+        mazeState.bonus.delete(cellKey);
+        showToast(`踩到小奖励，额外 +${item.value} 个mua。`);
+      }
+      if (mazeState.traps.has(cellKey)) {
+        const trap = mazeState.traps.get(cellKey);
+        mazeState.steps += trap.penalty;
+        const lostMua = mazeState.collected > 0;
+        if (lostMua) mazeState.collected -= 1;
+        mazeState.traps.delete(cellKey);
+        showToast(`踩到小陷阱，步数 +${trap.penalty}${lostMua ? "，mua -1" : ""}。`);
+      }
+      if (options.allowPortal && mazeState.portals.has(cellKey)) {
+        const target = mazeState.portals.get(cellKey);
+        mazeState.player = { x: target.x, y: target.y };
+        mazeState.trail.add(key(target.x, target.y));
+        showToast("进入传送格，路线被小小打乱。");
+        applyCellEvents(target, { allowPortal: false });
+      }
+      if (mazeState.notes.has(cellKey)) {
+        showToast(mazeState.notes.get(cellKey));
+        mazeState.notes.delete(cellKey);
       }
     }
 
@@ -1237,23 +1356,12 @@
       mazeState.player = next;
       mazeState.steps += 1;
       mazeState.trail.add(key(next.x, next.y));
-
-      const cellKey = key(next.x, next.y);
-      if (mazeState.hearts.has(cellKey)) {
-        const heart = mazeState.hearts.get(cellKey);
-        mazeState.collected += heart.value;
-        mazeState.hearts.delete(cellKey);
-        showToast("收集到 1 个谷鸡鸡的mua。");
-      }
-      if (mazeState.notes.has(cellKey)) {
-        showToast(mazeState.notes.get(cellKey));
-        mazeState.notes.delete(cellKey);
-      }
+      applyCellEvents(next);
 
       updateStats();
       renderMaze();
 
-      if (next.x === mazeState.exit.x && next.y === mazeState.exit.y) {
+      if (mazeState.player.x === mazeState.exit.x && mazeState.player.y === mazeState.exit.y) {
         finishMaze();
       }
     }
@@ -1573,7 +1681,7 @@
       if (!mazeState) return;
       stepsStat.textContent = mazeState.steps;
       timeStat.textContent = formatTime(elapsedSeconds());
-      heartsStat.textContent = `${mazeState.collected}/${mazeState.collected + mazeState.hearts.size}`;
+      heartsStat.textContent = `${mazeState.collected} mua`;
     }
 
     function startTimer() {
