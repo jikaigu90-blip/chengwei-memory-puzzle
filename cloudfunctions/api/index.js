@@ -10,9 +10,13 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 const staticFiles = new Map([
   ["/manifest.webmanifest", { file: "manifest.webmanifest", type: "application/manifest+json; charset=utf-8", cache: "no-cache" }],
+  ["/api/manifest.webmanifest", { file: "manifest.webmanifest", type: "application/manifest+json; charset=utf-8", cache: "no-cache" }],
   ["/sw.js", { file: "sw.js", type: "application/javascript; charset=utf-8", cache: "no-cache" }],
+  ["/api/sw.js", { file: "sw.js", type: "application/javascript; charset=utf-8", cache: "no-cache", serviceWorker: true }],
   ["/icons/app-icon-192.png", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
+  ["/api/icons/app-icon-192.png", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
   ["/icons/app-icon-512.png", { file: path.join("icons", "app-icon-512.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
+  ["/api/icons/app-icon-512.png", { file: path.join("icons", "app-icon-512.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
   ["/favicon.ico", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }]
 ]);
 
@@ -147,7 +151,7 @@ function normalizeState(value) {
 
 function parseRequest(event) {
   const method = String(event.httpMethod || event.requestContext?.http?.method || event.method || "GET").toUpperCase();
-  const path = String(event.path || event.rawPath || event.requestContext?.http?.path || "/");
+  const path = String(event.path || event.rawPath || event.requestContext?.http?.path || "/").split("?")[0];
   let body = event.body || {};
   if (typeof body === "string") {
     try {
@@ -198,12 +202,16 @@ function htmlResponse(body) {
 
 function fileResponse(asset) {
   const body = fs.readFileSync(path.join(__dirname, asset.file));
+  const headers = {
+    "content-type": asset.type,
+    "cache-control": asset.cache
+  };
+  if (asset.serviceWorker) {
+    headers["service-worker-allowed"] = "/";
+  }
   return {
     statusCode: 200,
-    headers: {
-      "content-type": asset.type,
-      "cache-control": asset.cache
-    },
+    headers,
     body: asset.binary ? body.toString("base64") : body.toString("utf8"),
     isBase64Encoded: Boolean(asset.binary)
   };
