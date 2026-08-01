@@ -1,0 +1,25 @@
+{
+  "name": "小程微的每日心动迷宫",
+  "short_name": "心动迷宫",
+  "description": "小程微专属的每日迷宫和谷鸡鸡的mua小商店。",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#f06f9a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -8,6 +8,13 @@ const collection = db.collection("coupon_state");
 const STATE_ID = "state";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+const staticFiles = new Map([
+  ["/manifest.webmanifest", { file: "manifest.webmanifest", type: "application/manifest+json; charset=utf-8", cache: "no-cache" }],
+  ["/sw.js", { file: "sw.js", type: "application/javascript; charset=utf-8", cache: "no-cache" }],
+  ["/icons/app-icon-192.png", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
+  ["/icons/app-icon-512.png", { file: path.join("icons", "app-icon-512.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
+  ["/favicon.ico", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }]
+]);
 
 const shopItems = [
   { slug: "QQ", name: "亲亲券", cost: 2 },
@@ -27,6 +34,10 @@ exports.main = async (event) => {
 
   if (request.method === "GET" && (request.path === "/" || request.path.endsWith("/index.html"))) {
     return htmlResponse(html);
+  }
+
+  if (request.method === "GET" && staticFiles.has(request.path)) {
+    return fileResponse(staticFiles.get(request.path));
   }
 
   if (request.method === "GET" && request.path.endsWith("/sync")) {
@@ -182,5 +193,18 @@ function htmlResponse(body) {
       "cache-control": "no-store"
     },
     body
+  };
+}
+
+function fileResponse(asset) {
+  const body = fs.readFileSync(path.join(__dirname, asset.file));
+  return {
+    statusCode: 200,
+    headers: {
+      "content-type": asset.type,
+      "cache-control": asset.cache
+    },
+    body: asset.binary ? body.toString("base64") : body.toString("utf8"),
+    isBase64Encoded: Boolean(asset.binary)
   };
 }

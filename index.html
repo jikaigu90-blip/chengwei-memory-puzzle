@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>小程微的每日心动迷宫</title>
+  <meta name="theme-color" content="#f06f9a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="心动迷宫">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/app-icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/app-icon-192.png">
   <style>
     :root {
       --bg: #fff8fb;
@@ -1950,6 +1957,13 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    const canUseServiceWorker = window.location.protocol === "https:" || ["localhost", "127.0.0.1"].includes(window.location.hostname);
+    if ("serviceWorker" in navigator && canUseServiceWorker) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      });
     }
   </script>
 </body>
