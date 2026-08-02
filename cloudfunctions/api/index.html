@@ -8,9 +8,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="心动迷宫">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="manifest" href="/api/manifest.webmanifest">
-  <link rel="icon" href="/api/icons/app-icon-192.png">
-  <link rel="apple-touch-icon" href="/api/icons/app-icon-192.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/app-icon-192.png">
+  <link rel="apple-touch-icon" href="/icons/app-icon-192.png">
   <style>
     :root {
       --bg: #fff8fb;
@@ -482,9 +482,106 @@
       inset: -44% -34% -8%;
       border-radius: 50%;
       background:
-        url("/api/characters/xiaochengwei-player.png") 59% 18% / 150% auto no-repeat,
+        url("/characters/xiaochengwei-player.png") 59% 18% / 150% auto no-repeat,
         #fff8e7;
       box-shadow: 0 3px 8px rgba(53, 36, 43, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.72);
+      transform: translate(0, 0) scaleX(var(--player-flip, 1)) rotate(0deg);
+      transform-origin: 50% 82%;
+      will-change: transform;
+    }
+
+    .player {
+      overflow: visible;
+      z-index: 4;
+      --player-flip: 1;
+      --player-step-x: 0%;
+      --player-step-y: 0%;
+      --player-lean: 0deg;
+    }
+
+    .player.facing-left {
+      --player-flip: -1;
+      --player-step-x: -10%;
+      --player-lean: -7deg;
+    }
+
+    .player.facing-right {
+      --player-step-x: 10%;
+      --player-lean: 7deg;
+    }
+
+    .player.facing-up {
+      --player-step-y: -10%;
+      --player-lean: -3deg;
+    }
+
+    .player.facing-down {
+      --player-step-y: 10%;
+      --player-lean: 3deg;
+    }
+
+    .player.player-walking::after {
+      animation: playerWalk 360ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
+    }
+
+    .player.player-walking::before {
+      animation: playerShadow 360ms ease-out both;
+    }
+
+    .player.player-bump::after {
+      animation: playerBump 340ms ease-out both;
+    }
+
+    @keyframes playerWalk {
+      0% {
+        transform: translate(0, 0) scaleX(var(--player-flip)) rotate(0deg);
+      }
+      42% {
+        transform: translate(var(--player-step-x), calc(var(--player-step-y) - 12%)) scaleX(var(--player-flip)) rotate(var(--player-lean));
+      }
+      72% {
+        transform: translate(0, 4%) scaleX(var(--player-flip)) rotate(0deg);
+      }
+      100% {
+        transform: translate(0, 0) scaleX(var(--player-flip)) rotate(0deg);
+      }
+    }
+
+    @keyframes playerShadow {
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      42% {
+        transform: scale(0.74);
+        opacity: 0.62;
+      }
+      72% {
+        transform: scale(1.08);
+        opacity: 0.95;
+      }
+    }
+
+    @keyframes playerBump {
+      0%,
+      100% {
+        transform: translate(0, 0) scaleX(var(--player-flip)) rotate(0deg);
+      }
+      38% {
+        transform: translate(var(--player-step-x), var(--player-step-y)) scaleX(var(--player-flip)) rotate(var(--player-lean));
+      }
+      62% {
+        transform: translate(0, 0) scaleX(var(--player-flip)) rotate(0deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .player.player-walking::after,
+      .player.player-walking::before,
+      .player.player-bump::after {
+        animation: none;
+      }
     }
 
     .actions,
@@ -990,6 +1087,10 @@
   <script>
     const STORAGE_KEY = "chengwei-maze-game-v1";
     const SYNC_INTERVAL_MS = 6000;
+    const API_ORIGIN = "https://chengwei-puzzle-d9f7oy9b0809a39f-1461185608.ap-shanghai.app.tcloudbase.com";
+    const API_BASE = location.hostname.endsWith("tcloudbaseapp.com") && !location.hostname.endsWith("app.tcloudbase.com")
+      ? `${API_ORIGIN}/api`
+      : "/api";
 
     const storyLevels = [
       { id: 1, title: "小小心动", size: 13, reward: 2, replay: 1, hearts: 3, bonus: 1, traps: 1, portals: 0, note: "小程微，今天也要走向开心。" },
@@ -1030,6 +1131,7 @@
     let onlineSync = false;
     let syncTimer = null;
     let touchStart = null;
+    let playerMotionTimer = null;
 
     const playerAccountBtn = document.getElementById("playerAccountBtn");
     const adminAccountBtn = document.getElementById("adminAccountBtn");
@@ -1170,6 +1272,7 @@
 
     function startMaze() {
       stopTimer();
+      stopPlayerMotion();
       const config = getCurrentConfig();
       const seed = config.seed;
       const rng = mulberry32(hashString(seed));
@@ -1225,6 +1328,8 @@
         steps: 0,
         startedAt: Date.now(),
         finished: false,
+        facing: "down",
+        motion: null,
         trail: new Set([key(1, 1)])
       };
 
@@ -1316,7 +1421,11 @@
           if (mazeState.portals.has(cellKey)) cell.classList.add("portal");
           if (mazeState.notes.has(cellKey)) cell.classList.add("note");
           if (mazeState.exit.x === x && mazeState.exit.y === y) cell.classList.add("exit");
-          if (mazeState.player.x === x && mazeState.player.y === y) cell.classList.add("player");
+          if (mazeState.player.x === x && mazeState.player.y === y) {
+            cell.classList.add("player", `facing-${mazeState.facing || "down"}`);
+            if (mazeState.motion === "walk") cell.classList.add("player-walking");
+            if (mazeState.motion === "bump") cell.classList.add("player-bump");
+          }
           mazeEl.appendChild(cell);
         }
       }
@@ -1371,8 +1480,13 @@
         x: mazeState.player.x + delta.x,
         y: mazeState.player.y + delta.y
       };
-      if (!isWalkable(next.x, next.y)) return;
+      if (!isWalkable(next.x, next.y)) {
+        setPlayerMotion(direction, "bump");
+        renderMaze();
+        return;
+      }
 
+      setPlayerMotion(direction, "walk");
       mazeState.player = next;
       mazeState.steps += 1;
       mazeState.trail.add(key(next.x, next.y));
@@ -1384,6 +1498,25 @@
       if (mazeState.player.x === mazeState.exit.x && mazeState.player.y === mazeState.exit.y) {
         finishMaze();
       }
+    }
+
+    function setPlayerMotion(direction, motion) {
+      if (!mazeState) return;
+      mazeState.facing = direction || mazeState.facing || "down";
+      mazeState.motion = motion;
+      if (playerMotionTimer) window.clearTimeout(playerMotionTimer);
+      playerMotionTimer = window.setTimeout(() => {
+        if (!mazeState) return;
+        mazeState.motion = null;
+        renderMaze();
+        playerMotionTimer = null;
+      }, motion === "bump" ? 460 : 390);
+    }
+
+    function stopPlayerMotion() {
+      if (playerMotionTimer) window.clearTimeout(playerMotionTimer);
+      playerMotionTimer = null;
+      if (mazeState) mazeState.motion = null;
     }
 
     function isWalkable(x, y) {
@@ -1788,7 +1921,7 @@
 
     async function syncFromServer() {
       try {
-        const response = await fetch("/api/sync", { cache: "no-store" });
+        const response = await fetch(`${API_BASE}/sync`, { cache: "no-store" });
         if (!response.ok) throw new Error("sync unavailable");
         const remote = await response.json();
         onlineSync = true;
@@ -1800,7 +1933,7 @@
 
     async function syncCouponToServer(coupon) {
       try {
-        const response = await fetch("/api/coupons", {
+        const response = await fetch(`${API_BASE}/coupons`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ coupon })
@@ -1816,7 +1949,7 @@
 
     async function loginAdmin(password) {
       try {
-        const response = await fetch("/api/login", {
+        const response = await fetch(`${API_BASE}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password })
@@ -1831,7 +1964,7 @@
 
     async function verifyCouponOnServer(code) {
       try {
-        const response = await fetch("/api/verify", {
+        const response = await fetch(`${API_BASE}/verify`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code, password: adminPassword })
@@ -2039,7 +2172,7 @@
     const canUseServiceWorker = window.location.protocol === "https:" || ["localhost", "127.0.0.1"].includes(window.location.hostname);
     if ("serviceWorker" in navigator && canUseServiceWorker) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker.register("/api/sw.js", { scope: "/" }).catch(() => {});
+        navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
       });
     }
   </script>
