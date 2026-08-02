@@ -17,6 +17,7 @@ const staticFiles = new Map([
   ["/api/icons/app-icon-192.png", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
   ["/icons/app-icon-512.png", { file: path.join("icons", "app-icon-512.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
   ["/api/icons/app-icon-512.png", { file: path.join("icons", "app-icon-512.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
+  ["/api/characters/xiaochengwei-player.png", { file: path.join("characters", "xiaochengwei-player.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }],
   ["/favicon.ico", { file: path.join("icons", "app-icon-192.png"), type: "image/png", cache: "public, max-age=31536000, immutable", binary: true }]
 ]);
 

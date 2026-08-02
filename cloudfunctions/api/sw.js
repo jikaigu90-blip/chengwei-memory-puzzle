@@ -1,9 +1,10 @@
-const CACHE_NAME = "chengwei-maze-pwa-v1";
+const CACHE_NAME = "chengwei-maze-pwa-v2";
 const APP_SHELL = [
   "/",
-  "/manifest.webmanifest",
-  "/icons/app-icon-192.png",
-  "/icons/app-icon-512.png"
+  "/api/manifest.webmanifest",
+  "/api/icons/app-icon-192.png",
+  "/api/icons/app-icon-512.png",
+  "/api/characters/xiaochengwei-player.png"
 ];
 
 self.addEventListener("install", (event) => {

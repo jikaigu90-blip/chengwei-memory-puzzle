@@ -463,21 +463,28 @@
       box-shadow: inset 0 0 0 2px rgba(120, 205, 187, 0.6);
     }
 
-    .player::after {
-      content: "微";
-      z-index: 2;
-      color: #fff;
-      font-size: clamp(11px, 1.8vw, 18px);
-    }
-
     .player::before {
       content: "";
       position: absolute;
       z-index: 1;
-      inset: 8%;
+      left: 16%;
+      right: 16%;
+      bottom: 4%;
+      height: 20%;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--pink), var(--sky));
-      box-shadow: 0 4px 12px rgba(240, 111, 154, 0.28);
+      background: rgba(53, 36, 43, 0.22);
+      filter: blur(2px);
+    }
+
+    .player::after {
+      content: "";
+      z-index: 2;
+      inset: -44% -34% -8%;
+      border-radius: 50%;
+      background:
+        url("/api/characters/xiaochengwei-player.png") 59% 18% / 150% auto no-repeat,
+        #fff8e7;
+      box-shadow: 0 3px 8px rgba(53, 36, 43, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.72);
     }
 
     .actions,
@@ -637,6 +644,12 @@
       border: 1px solid rgba(240, 111, 154, 0.25);
       background: #fff;
       color: var(--pink);
+    }
+
+    .buy:disabled {
+      background: #f6edf1;
+      color: #a58f9a;
+      box-shadow: none;
     }
 
     .verify-form {
@@ -988,12 +1001,12 @@
     ];
 
     const shopItems = [
-      { slug: "QQ", name: "亲亲券", cost: 2 },
-      { slug: "NC", name: "奶茶券", cost: 10 },
-      { slug: "BBW", name: "饱饱碗券", cost: 15 },
-      { slug: "QK", name: "请客券（40r以内）", cost: 18 },
-      { slug: "GS", name: "挂饰券", cost: 22 },
-      { slug: "BX", name: "报销券（70r以内）", cost: 30 }
+      { slug: "QQ", name: "亲亲券", cost: 2, limit: null },
+      { slug: "NC", name: "奶茶券", cost: 10, limit: { type: "day", max: 1 } },
+      { slug: "BBW", name: "饱饱碗券", cost: 15, limit: { type: "day", max: 1 } },
+      { slug: "QK", name: "请客券（40r以内）", cost: 18, limit: { type: "day", max: 1 } },
+      { slug: "GS", name: "挂饰券", cost: 22, limit: { type: "week", max: 1 } },
+      { slug: "BX", name: "报销券（70r以内）", cost: 30, limit: { type: "week", max: 1 } }
     ];
 
     const defaultState = {
@@ -1517,16 +1530,18 @@
         const row = document.createElement("div");
         row.className = "shop-item";
         const owned = state.coupons.filter((entry) => entry.name === item.name).length;
+        const limitStatus = getRedemptionLimitStatus(item);
         row.innerHTML = `
           <div>
             <h3>${item.name}</h3>
-            <p>${item.cost} 个谷鸡鸡的mua兑换 · 已兑换 ${owned} 次</p>
+            <p>${item.cost} 个谷鸡鸡的mua兑换 · 已兑换 ${owned} 次 · ${limitStatus.text}</p>
           </div>
         `;
         const button = document.createElement("button");
         button.className = "buy";
-        button.textContent = "兑换";
-        button.disabled = state.balance < item.cost;
+        button.textContent = limitStatus.canRedeem ? "兑换" : (item.limit && item.limit.type === "week" ? "本周已兑" : "今日已兑");
+        button.disabled = state.balance < item.cost || !limitStatus.canRedeem;
+        if (!limitStatus.canRedeem) button.title = limitStatus.text;
         button.addEventListener("click", () => redeem(item));
         row.appendChild(button);
         shop.appendChild(row);
@@ -1534,6 +1549,11 @@
     }
 
     async function redeem(item) {
+      const limitStatus = getRedemptionLimitStatus(item);
+      if (!limitStatus.canRedeem) {
+        showToast(`${item.name} ${limitStatus.text}，刷新后再来兑换。`);
+        return;
+      }
       if (state.balance < item.cost) {
         showToast("谷鸡鸡的mua还不够，再走几局迷宫攒一点。");
         return;
@@ -1549,11 +1569,68 @@
         usedAt: null
       };
       state.coupons.unshift(coupon);
-      state.redemptions.unshift({ name: item.name, cost: item.cost, code: coupon.code, redeemedAt: coupon.redeemedAt });
+      state.redemptions.unshift({
+        slug: item.slug,
+        name: item.name,
+        cost: item.cost,
+        code: coupon.code,
+        redeemedAt: coupon.redeemedAt,
+        limitKey: limitStatus.key || null,
+        limitType: item.limit ? item.limit.type : null
+      });
       saveState();
       renderAllLists();
       await syncCouponToServer(coupon);
       showToast(`兑换成功：${item.name}，券码已经放进券包。`);
+    }
+
+    function getRedemptionLimitStatus(item) {
+      if (!item.limit) {
+        return { canRedeem: true, remaining: Infinity, used: 0, key: null, text: "不限次数" };
+      }
+
+      const keyValue = limitWindowKey(item.limit.type);
+      const used = redemptionEntriesFor(item)
+        .filter((entry) => entry.redeemedAt && limitWindowKey(item.limit.type, new Date(entry.redeemedAt)) === keyValue)
+        .length;
+      const remaining = Math.max(0, item.limit.max - used);
+      const resetText = item.limit.type === "week" ? "每周一 4:00 刷新" : "每天 4:00 刷新";
+      const periodText = item.limit.type === "week" ? "本周" : "今日";
+      return {
+        canRedeem: remaining > 0,
+        remaining,
+        used,
+        key: keyValue,
+        text: `${periodText}剩余 ${remaining}/${item.limit.max} 次，${resetText}`
+      };
+    }
+
+    function redemptionEntriesFor(item) {
+      const entries = new Map();
+      state.coupons
+        .filter((coupon) => coupon.slug === item.slug || coupon.name === item.name)
+        .forEach((coupon) => {
+          const id = normalizeCouponCode(coupon.code) || `${item.slug}-${coupon.redeemedAt}`;
+          entries.set(id, { slug: coupon.slug || item.slug, name: coupon.name, redeemedAt: coupon.redeemedAt });
+        });
+      state.redemptions
+        .filter((entry) => entry.slug === item.slug || entry.name === item.name)
+        .forEach((entry) => {
+          const id = normalizeCouponCode(entry.code) || `${item.slug}-${entry.redeemedAt}`;
+          entries.set(id, { slug: entry.slug || item.slug, name: entry.name, redeemedAt: entry.redeemedAt });
+        });
+      return [...entries.values()];
+    }
+
+    function limitWindowKey(type, value = new Date()) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      date.setHours(date.getHours() - 4);
+      if (type === "week") {
+        const daysSinceMonday = (date.getDay() + 6) % 7;
+        date.setDate(date.getDate() - daysSinceMonday);
+      }
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     }
 
     function renderCoupons() {
